@@ -8,16 +8,20 @@ import java.util.Random;
 
 public class DiskTool {
 
-    // 在 iNodeBitmap[] 中随机找一个值为 false 的索引
-    public static int getFreeINode(Disk disk) {
+    // 根据文件、目录名计算哈希值 % iNodeBitmap大小，得出文件、目录的inode号
+    public static int getFreeINode(Disk disk, String fileName) {
         boolean[] iNodeBitmap = disk.getINodeBitmap();
-        Random random = new Random();
-        int index = random.nextInt(iNodeBitmap.length);
+        int hashCode = fileName.hashCode(); // 获取文件名的哈希值
+        int index = Math.abs(hashCode) % iNodeBitmap.length; // 取模得出索引
+
+        // 查找第一个未被使用的 inode 号
         while (iNodeBitmap[index]) {
-            index = random.nextInt(iNodeBitmap.length);
+            index = (index + 1) % iNodeBitmap.length; // 线性探测下一个索引
         }
+
         return index;
     }
+
     // 在 blockBitmap[] 中随即找出 k 个值为 false 的索引
     public static LinkedList<Integer> getFreeBlocks(Disk disk, int k) {
         boolean[] blockBitmap = disk.getBlockBitmap();

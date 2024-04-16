@@ -46,7 +46,7 @@ public class MiniOsApplicationRunner implements ApplicationRunner {
         disk.setINodeBitmapByIndex(2, true);
         // 创建 home 目录，放在根目录下
         Directory homeDirectory = new Directory("home", new LinkedList<>());
-        int index = DiskTool.getFreeINode(disk);
+        int index = DiskTool.getFreeINode(disk, "home");
         DirectoryEntry directoryEntry = new DirectoryEntry(DIRECTORY, "home", index);
         rootDirectory.getEntries().add(directoryEntry);
         // 将 home 目录信息存进磁盘inode[]、inodeBitMap
@@ -56,7 +56,7 @@ public class MiniOsApplicationRunner implements ApplicationRunner {
         LinkedList<Integer> freeBlockNumbers = DiskTool.getFreeBlocks(disk, 1);
         CommonFile commonFile = new CommonFile("test.txt", RDONLY, 9, 1, freeBlockNumbers, LocalDateTime.now(), null, null);
         String data = "asdfghjkl";
-        index = DiskTool.getFreeINode(disk);
+        index = DiskTool.getFreeINode(disk, "test.txt");
         directoryEntry = new DirectoryEntry(COMMON_FILE, "test.txt", index);
         homeDirectory.getEntries().add(directoryEntry);
         // 将文件信息存进磁盘inode[]、inodeBitMap、blocks[]、blockBitmap
