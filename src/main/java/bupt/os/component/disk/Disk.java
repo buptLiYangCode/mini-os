@@ -15,7 +15,7 @@ public class Disk {
     // 磁盘大小，例如128KB
     public static final int DISK_SIZE = 128 * 1024;
     // 块数
-    public static final int TOTAL_BLOCKS = 256;
+    public static final int TOTAL_BLOCKS = 200;
     // 块大小，例如512B
     public static final int BLOCK_SIZE = 512;
 
