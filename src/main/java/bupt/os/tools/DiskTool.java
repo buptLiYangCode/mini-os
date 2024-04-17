@@ -9,7 +9,7 @@ import java.util.Random;
 public class DiskTool {
 
     // 根据文件、目录名计算哈希值 % iNodeBitmap大小，得出文件、目录的inode号
-    public static int getFreeINode(Disk disk, String fileName) {
+    public static int getINodeIndex(Disk disk, String fileName) {
         boolean[] iNodeBitmap = disk.getINodeBitmap();
         int hashCode = fileName.hashCode(); // 获取文件名的哈希值
         int index = Math.abs(hashCode) % iNodeBitmap.length; // 取模得出索引
