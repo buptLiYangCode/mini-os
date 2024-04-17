@@ -1,8 +1,15 @@
 package bupt.os.component.memory;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 /**
- * 页表一个表项，每个进程的页表都是存储在内存中
+ * 虚拟页号，对应的页表中的表项
  */
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class PageTableEntry {
     // 页是否在物理内存中
     private boolean isValid;
