@@ -1,20 +1,16 @@
-package bupt.os.component.process;
+package bupt.os.component.memory;
 
 import bupt.os.component.filesystem.INode;
-import bupt.os.component.filesystem.OpenFileEntry;
-import bupt.os.component.memory.PageTableEntry;
+import bupt.os.component.filesystem.OpenFileInfo;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.HashMap;
-import java.util.LinkedList;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class PCB {
     // 进程id
     private int pid;
@@ -28,10 +24,11 @@ public class PCB {
     private String state;
     // 工作目录,进程当前所在的目录，影响着进程对文件的操作
     private INode iNode;
+    // 剩余可执行时间，单位ms
+    private long remainingTime;
+    // 本次执行开始的时间戳，UTC 时间 1970 年 1 月 1 日 00:00:00 以来经过的毫秒数
+    private long startTime;
 
     // 文件描述符表
-    private HashMap<Integer, OpenFileEntry> fileDescriptorTable;
-    // 页表，VPN -> PPN
-    private LinkedList<PageTableEntry> pageTable;
-
+    private HashMap<Integer, OpenFileInfo> fileDescriptorTable;
 }
