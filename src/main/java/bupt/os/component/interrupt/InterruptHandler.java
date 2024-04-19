@@ -3,6 +3,7 @@ package bupt.os.component.interrupt;
 import bupt.os.component.disk.Disk;
 import bupt.os.component.filesystem.CommonFile;
 import bupt.os.component.memory.PCB;
+import bupt.os.component.memory.PageInfo;
 import bupt.os.component.memory.ProtectedMemory;
 import lombok.extern.slf4j.Slf4j;
 
@@ -59,10 +60,14 @@ public class InterruptHandler {
      * @param vpn 需要换入内存的虚拟页号
      */
     public static void handleSoftInterrupt(PCB pcb, int vpn) {
-        int iNodeIndex = pcb.getPid();
-        CommonFile jobFile = (CommonFile) disk.getINodes()[iNodeIndex];
+        int pid = pcb.getPid();
+        CommonFile jobFile = (CommonFile) disk.getINodes()[pid];
         LinkedList<Integer> blockNumbers = jobFile.getBlockNumbers();
-
-        loadPageIntoMemory(blockNumbers);
+        // 将指定块加载进内存
+        Integer loadPageNumber = loadPageIntoMemory(blockNumbers);
+        // 更新页表
+        LinkedList<PageInfo> list = protectedMemory.getProcessPageTable().get(pid);
+        PageInfo pageInfo = list.get(vpn);
+        pageInfo.setPageNumber(loadPageNumber);
     }
 }
