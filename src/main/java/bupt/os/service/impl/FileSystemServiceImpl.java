@@ -6,7 +6,6 @@ import bupt.os.component.filesystem.CommonFile;
 import bupt.os.component.filesystem.Directory;
 import bupt.os.component.filesystem.DirectoryEntry;
 import bupt.os.service.FileSystemService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
@@ -18,9 +17,8 @@ import static bupt.os.common.constant.FileTypeConstant.DIRECTORY;
 import static bupt.os.component.disk.Disk.BLOCK_SIZE;
 
 @Service
-@RequiredArgsConstructor
 public class FileSystemServiceImpl implements FileSystemService {
-    private final Disk disk;
+    private final Disk disk = Disk.getInstance();
 
     @Override
     public String getFileData(String path) {
