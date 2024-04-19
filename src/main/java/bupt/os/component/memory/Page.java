@@ -7,6 +7,6 @@ import lombok.Data;
  */
 @Data
 public class Page {
-    //
+    // 数据数组
     private char[] data;
 }

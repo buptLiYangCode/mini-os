@@ -12,6 +12,8 @@ import java.util.LinkedList;
 @Component
 @Data
 public class Disk {
+    private static volatile Disk instance;
+
     // 磁盘大小，例如128KB
     public static final int DISK_SIZE = 128 * 1024;
     // 块数
@@ -27,6 +29,31 @@ public class Disk {
     private INode[] iNodes;
     // block数组
     private Block[] blocks;
+
+    // 私有构造函数，防止外部实例化
+    private Disk() {
+        // 初始化各个数据结构
+        iNodeBitmap = new boolean[TOTAL_BLOCKS];
+        blockBitmap = new boolean[TOTAL_BLOCKS];
+        iNodes = new INode[TOTAL_BLOCKS];
+        blocks = new Block[TOTAL_BLOCKS];
+        for (int i = 0; i < TOTAL_BLOCKS; i++) {
+            blocks[i] = new Block();
+            blocks[i].setData(new char[BLOCK_SIZE]);
+        }
+    }
+
+    // 获取单例实例的静态方法
+    public static Disk getInstance() {
+        if (instance == null) {
+            synchronized (Disk.class) {
+                if (instance == null) {
+                    instance = new Disk();
+                }
+            }
+        }
+        return instance;
+    }
 
     // 根据index设置inode
     public void setINodeByIndex(int index, INode iNode) {
@@ -46,7 +73,6 @@ public class Disk {
 
     /**
      * 创建文件时，向磁盘块中写入数据
-     *
      * @param blockNumbers 待写入的磁盘块号
      * @param data         写入的数据
      */

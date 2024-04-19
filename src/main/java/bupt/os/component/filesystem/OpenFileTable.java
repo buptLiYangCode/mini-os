@@ -10,6 +10,6 @@ import java.util.HashMap;
 @AllArgsConstructor
 @NoArgsConstructor
 public class OpenFileTable {
-    private HashMap<OpenFileEntry, INode> files;
+    private HashMap<OpenFileInfo, INode> files;
 
 }

@@ -15,6 +15,8 @@ public class InstructionConstant {
     public static final String M = "M";
     // Y number 进程的优先数 （调度参数声明，优先级）
     public static final String Y = "Y";
+    public static final String A = "A";
+    // Y number 进程的优先数 （调度参数声明，优先级）
     // Q 结束运行 （程序结束）
     public static final String Q = "Q";
 }
