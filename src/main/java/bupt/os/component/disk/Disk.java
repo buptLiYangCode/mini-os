@@ -28,7 +28,7 @@ public class Disk {
     // inode数组，200个inode占用50个block，指向200个block
     private INode[] iNodes;
     // block数组
-    private Block[] blocks;
+    private char[][] blocks;
 
     // 私有构造函数，防止外部实例化
     private Disk() {
@@ -36,11 +36,7 @@ public class Disk {
         iNodeBitmap = new boolean[TOTAL_BLOCKS];
         blockBitmap = new boolean[TOTAL_BLOCKS];
         iNodes = new INode[TOTAL_BLOCKS];
-        blocks = new Block[TOTAL_BLOCKS];
-        for (int i = 0; i < TOTAL_BLOCKS; i++) {
-            blocks[i] = new Block();
-            blocks[i].setData(new char[BLOCK_SIZE]);
-        }
+        blocks = new char[TOTAL_BLOCKS][BLOCK_SIZE];
     }
 
     // 获取单例实例的静态方法
@@ -73,20 +69,22 @@ public class Disk {
 
     /**
      * 创建文件时，向磁盘块中写入数据
+     *
      * @param blockNumbers 待写入的磁盘块号
      * @param data         写入的数据
      */
     public void setBlocksByBlockNumbers(LinkedList<Integer> blockNumbers, String data) {
         char[] dataArray = data.toCharArray();
+        // 写入数据的下标
         int dataIndex = 0;
-
         for (Integer number : blockNumbers) {
-            Block block = this.blocks[number];
-            char[] blockData = new char[BLOCK_SIZE];
-            int len = Math.min((dataArray.length - dataIndex), BLOCK_SIZE);
-            System.arraycopy(dataArray, dataIndex, blockData, 0, len);
-            block.setData(blockData);
-            dataIndex += len;
+            if (dataIndex >= dataArray.length)
+                break;
+            int len = Math.min(BLOCK_SIZE, dataArray.length - dataIndex);
+            char[] block = blocks[number];
+            System.arraycopy(dataArray, dataIndex, block, 0, len);
+            dataIndex += BLOCK_SIZE;
+
         }
     }
 }

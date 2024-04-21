@@ -32,10 +32,6 @@ public class ProtectedMemory {
     private Queue<PCB> readyQueue;
     // 等待队列
     private Queue<PCB> waitingQueue;
-    // 挂起就绪队列
-    private Queue<PCB> suspendedReadyQueue;
-    // 挂起等待队列
-    private Queue<PCB> suspendWaitingQueue;
 
     // 私有构造函数，防止外部实例化
     private ProtectedMemory() {
@@ -52,8 +48,6 @@ public class ProtectedMemory {
         runningQueue = new LinkedList<>();
         readyQueue = new LinkedList<>();
         waitingQueue = new LinkedList<>();
-        suspendedReadyQueue = new LinkedList<>();
-        suspendWaitingQueue = new LinkedList<>();
     }
 
     // 获取单例实例的静态方法

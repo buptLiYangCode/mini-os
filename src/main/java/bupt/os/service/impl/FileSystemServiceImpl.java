@@ -61,11 +61,11 @@ public class FileSystemServiceImpl implements FileSystemService {
         int blockCount = commonFile.getBlockCount();
         // 一个文件占n个块，前n-1个块不会有 “”
         for (int i = 0; i < blockCount - 1; i++) {
-            char[] data = disk.getBlocks()[blockNumbers.get(i)].getData();
+            char[] data = disk.getBlocks()[blockNumbers.get(i)];
             sb.append(Arrays.toString(data));
         }
         // 最后一个块中会有大量 “”
-        char[] data = disk.getBlocks()[blockNumbers.get(blockCount - 1)].getData();
+        char[] data = disk.getBlocks()[blockNumbers.get(blockCount - 1)];
         sb.append(new String(data, 0, commonFile.getSize() % BLOCK_SIZE));
         return sb.toString();
     }

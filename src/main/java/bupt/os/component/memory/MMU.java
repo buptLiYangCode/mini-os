@@ -1,6 +1,5 @@
 package bupt.os.component.memory;
 
-import bupt.os.component.disk.Block;
 import bupt.os.component.disk.Disk;
 
 import java.util.Comparator;
@@ -25,11 +24,12 @@ public class MMU {
      * @return 页是否在内存
      */
     public static boolean accessPage(PCB pcb, int vpn) {
-        boolean isPageFault = true;
+        boolean isPageFault = false;
         HashMap<Integer, LinkedList<PageInfo>> processPageTable = protectedMemory.getProcessPageTable();
         PageInfo pageInfo = processPageTable.get(pcb.getPid()).get(vpn);
         if (!pageInfo.isPresent()) {
-            isPageFault = false;
+            System.out.println("进程" + pcb.getProcessName() + "vpn：" + vpn + "ppn：" + pageInfo.getPageNumber() + "不在内存中");
+            isPageFault = true;
         }
         return isPageFault;
     }
@@ -42,10 +42,10 @@ public class MMU {
         // 先使用页置换算法，选出一个可以存放磁盘数据的页
         Integer availablePageNumber = lruPageSwap(1).get(0);
         // 写入页
-        Block[] blocks = disk.getBlocks();
-        Page[] pages = userMemory.getPages();
+        char[][] blocks = disk.getBlocks();
+        char[][] pages = userMemory.getPages();
         for (int i = 0; i < blockNumbers.size(); i++) {
-            System.arraycopy(blocks[i].getData(), 0, pages[availablePageNumber].getData(), i * BLOCK_SIZE, BLOCK_SIZE);
+            System.arraycopy(blocks[i], 0, pages[availablePageNumber], i * BLOCK_SIZE, BLOCK_SIZE);
         }
         return availablePageNumber;
     }

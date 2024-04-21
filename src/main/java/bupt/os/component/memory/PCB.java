@@ -28,6 +28,7 @@ public class PCB {
     private long remainingTime;
     // 本次执行开始的时间戳，UTC 时间 1970 年 1 月 1 日 00:00:00 以来经过的毫秒数
     private long startTime;
+    private String[] instructions;
 
     // 文件描述符表
     private HashMap<Integer, OpenFileInfo> fileDescriptorTable;

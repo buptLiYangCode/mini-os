@@ -15,7 +15,7 @@ public class CPUSimulator {
 
     // 私有构造函数，防止外部实例化
     private CPUSimulator() {
-        executor = Executors.newFixedThreadPool(2);
+        executor = Executors.newFixedThreadPool(1);
     }
 
     // 获取单例实例的静态方法

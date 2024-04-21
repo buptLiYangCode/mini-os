@@ -7,6 +7,7 @@ import bupt.os.component.filesystem.CommonFile;
 import bupt.os.component.filesystem.Directory;
 import bupt.os.component.filesystem.DirectoryEntry;
 import bupt.os.component.interrupt.InterruptRequestLine;
+import bupt.os.component.memory.DeviceInfo;
 import bupt.os.component.memory.ProtectedMemory;
 import bupt.os.component.memory.UserMemory;
 import bupt.os.tools.DiskTool;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDateTime;
 import java.util.LinkedList;
 
+import static bupt.os.common.constant.DeviceStateConstant.DEVICE_READY;
 import static bupt.os.common.constant.FileFlagConstant.RDONLY;
 import static bupt.os.common.constant.FileTypeConstant.COMMON_FILE;
 import static bupt.os.common.constant.FileTypeConstant.DIRECTORY;
@@ -37,6 +39,21 @@ public class MiniOsApplicationRunner implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
+        // 添加默认设备
+        devicesSimulator.addDevice("K1");
+        devicesSimulator.addDevice("K2");
+        devicesSimulator.addDevice("K3");
+        devicesSimulator.addDevice("P1");
+
+        LinkedList<DeviceInfo> deviceInfoTable = protectedMemory.getDeviceInfoTable();
+        DeviceInfo deviceInfo1 = new DeviceInfo(1, "K1", "K", DEVICE_READY, new LinkedList<>());
+        deviceInfoTable.add(deviceInfo1);
+        DeviceInfo deviceInfo2 = new DeviceInfo(2, "K2", "K", DEVICE_READY, new LinkedList<>());
+        deviceInfoTable.add(deviceInfo2);
+        DeviceInfo deviceInfo3 = new DeviceInfo(3, "K3", "K", DEVICE_READY, new LinkedList<>());
+        deviceInfoTable.add(deviceInfo3);
+        DeviceInfo deviceInfo4 = new DeviceInfo(4, "P1", "P", DEVICE_READY, new LinkedList<>());
+        deviceInfoTable.add(deviceInfo4);
 
         // 创建根目录
         Directory rootDirectory = new Directory("/", new LinkedList<>());

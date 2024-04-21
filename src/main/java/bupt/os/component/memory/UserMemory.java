@@ -17,16 +17,12 @@ public class UserMemory {
     public static final int PAGE_SIZE = 4 * 1024;
 
     // 用户空间可访问页数组
-    private Page[] pages;
+    private char[][] pages;
 
     // 私有构造函数，防止外部实例化
     private UserMemory() {
         // 初始化页数组
-        pages = new Page[TOTAL_PAGES];
-        for (int i = 0; i < TOTAL_PAGES; i++) {
-            pages[i] = new Page();
-            pages[i].setData(new char[PAGE_SIZE]);
-        }
+        pages = new char[TOTAL_PAGES][PAGE_SIZE];
     }
 
     // 获取单例实例的静态方法
