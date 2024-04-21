@@ -18,7 +18,7 @@ public class ProtectedMemory {
     // 进程页表，存储进程，虚拟页号-物理页号的映射关系
     private HashMap<Integer, LinkedList<PageInfo>> processPageTable;
     // 进程控制块表
-    private HashMap<Integer, PCB> pcbTable; // 假设每个PCB有一个唯一的整数ID
+    private HashMap<Integer, PCB> pcbTable; // 假设每个PCB有一个唯一的PID
     // TODO 中断向量表
 
     // 页信息表，页最近访问时间，页进入内存的时间
