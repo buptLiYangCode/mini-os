@@ -5,6 +5,8 @@ import bupt.os.component.disk.Disk;
 import java.util.LinkedList;
 import java.util.Random;
 
+import static bupt.os.component.disk.Disk.TOTAL_BLOCKS;
+
 
 public class DiskTool {
 
@@ -13,7 +15,7 @@ public class DiskTool {
     public static int getINodeIndex(String fileName) {
         boolean[] iNodeBitmap = disk.getINodeBitmap();
         int hashCode = fileName.hashCode(); // 获取文件名的哈希值
-        int index = Math.abs(hashCode) % iNodeBitmap.length; // 取模得出索引
+        int index = Math.abs(hashCode) % TOTAL_BLOCKS; // 取模得出索引
 
         // 查找第一个未被使用的 inode 号
         while (iNodeBitmap[index]) {
