@@ -5,25 +5,28 @@ import bupt.os.component.cpu.CPUSimulator;
 import bupt.os.component.cpu.ProcessExecutionTask;
 import bupt.os.component.disk.Disk;
 import bupt.os.component.filesystem.CommonFile;
-import bupt.os.component.memory.*;
+import bupt.os.component.memory.PCB;
+import bupt.os.component.memory.PageInfo;
+import bupt.os.component.memory.ProtectedMemory;
+import bupt.os.component.memory.UserMemory;
 import bupt.os.dto.req.ProcessCreateReqDTO;
 import bupt.os.service.ProcessManageService;
 import bupt.os.tools.DiskTool;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadPoolExecutor;
 
 import static bupt.os.common.constant.CommonConstant.BLOCKS_PER_PAGE;
-import static bupt.os.common.constant.InstructionConstant.A;
 import static bupt.os.common.constant.InstructionConstant.M;
 import static bupt.os.common.constant.ProcessStateConstant.CREATED;
-import static bupt.os.common.constant.ProcessStateConstant.READY;
-import static bupt.os.component.disk.Disk.BLOCK_SIZE;
-import static bupt.os.component.memory.MMU.lruPageSwap;
 import static bupt.os.component.memory.UserMemory.PAGE_SIZE;
+import static bupt.os.tools.CommonTool.getPid;
 
 @Service
 public class ProcessManageServiceImpl implements ProcessManageService {
@@ -40,43 +43,52 @@ public class ProcessManageServiceImpl implements ProcessManageService {
      */
     @Override
     public void createProcess(ProcessCreateReqDTO processCreateReqDTO) {
+        String processName = processCreateReqDTO.getProcessName();
         CommonFile commonFile = new CommonFile();
-        commonFile.setFileName(processCreateReqDTO.getProcessName());
+        commonFile.setFileName(processName);
+        commonFile.setCreateTime(LocalDateTime.now());
         String[] instructions = processCreateReqDTO.getInstructions();
-        // 对于M 指令，会初始化作业文件的inode
-        String[] strings1 = Arrays.stream(instructions).filter(inst -> M.equals(inst.charAt(0) + "")).toArray(String[]::new);
-        String MInst = strings1[0];
-        String[] parts = MInst.split(" ");
-        int blockCount = Integer.parseInt(parts[1]);
-        commonFile.setSize(blockCount * BLOCK_SIZE);
-        commonFile.setBlockCount(blockCount);
-        LinkedList<Integer> freeBlockNumbers = DiskTool.getFreeBlocks(disk, blockCount);
+        // 根据M 指令，计算作业文件大小
+        int pageCount;
+        String MInst = Arrays.stream(instructions).filter(inst -> !M.equals(inst.charAt(0) + "")).toArray(String[]::new)[0];
+        pageCount = Integer.parseInt(MInst.split("")[1]);
+        commonFile.setSize(pageCount * PAGE_SIZE);
+        commonFile.setBlockCount(pageCount * BLOCKS_PER_PAGE);
+        LinkedList<Integer> freeBlockNumbers = DiskTool.getFreeBlocks(disk, pageCount * BLOCKS_PER_PAGE);
         commonFile.setBlockNumbers(freeBlockNumbers);
-        // 将M 指令拆成对虚拟页号的访存指令，存进StringBuilder
-        StringBuilder AInst = new StringBuilder();
-        for (int i = 0; i < Objects.requireNonNull(freeBlockNumbers).size() / BLOCKS_PER_PAGE + 1; i++) {
-            AInst.append(A).append(" ").append(i).append("#");
-        }
-        // 其他指令，存进StringBuilder
+
+
+        // M 指令以外的其他指令
         String[] otherInst = Arrays.stream(instructions).filter(inst -> !M.equals(inst.charAt(0) + "")).toArray(String[]::new);
-        StringBuilder sb = new StringBuilder(AInst);
+        // 所有指令会写入分配给文件的block块中，从第一个块开始写
+        StringBuilder sb = new StringBuilder();
         for (String inst : otherInst) {
             // #表示换行符
             sb.append(inst).append("#");
         }
-        System.out.println(sb);
-        // 所有指令会写入分配给文件的block块中，从第一个块开始写
         Integer firstBlock = commonFile.getBlockNumbers().get(0);
         char[] data = disk.getBlocks()[firstBlock];
         char[] arr = sb.toString().toCharArray();
         System.arraycopy(arr, 0, data, 0, arr.length);
-        // 初始化文件创建时间
-        commonFile.setCreateTime(LocalDateTime.now());
+
         // 将文件信息存进磁盘inode[]、inodeBitMap、blocks[]、blockBitmap
-        int index = DiskTool.getINodeIndex(processCreateReqDTO.getProcessName());
+        int index = DiskTool.getINodeIndex(processName);
         disk.setINodeByIndex(index, commonFile);
         disk.setINodeBitmapByIndex(index, true);
-        disk.setBlockBitmapByBlockNumbers(freeBlockNumbers, true);
+        if (freeBlockNumbers != null)
+            disk.setBlockBitmapByBlockNumbers(freeBlockNumbers, true);
+
+
+        // 创建进程pcb，放进pcbTable
+        PCB pcb = new PCB(index, processName, 0, pageCount * PAGE_SIZE, CREATED, null, -1, -1, otherInst, null);
+        HashMap<Integer, PCB> pcbTable = protectedMemory.getPcbTable();
+        pcbTable.put(index, pcb);
+        // 存储进程虚拟页号->物理页号的映射关系
+        LinkedList<PageInfo> pageInfoList = protectedMemory.getProcessPageTable().get(index);
+        for (int i = 0; i < pageCount; i++) {
+            PageInfo pageInfo = new PageInfo(-1, false);
+            pageInfoList.add(pageInfo);
+        }
     }
 
     /**
@@ -87,42 +99,9 @@ public class ProcessManageServiceImpl implements ProcessManageService {
     @Override
     public void executeProcess(String processName) {
 
-        // 1.先把作业文件加载进内存
-        // 计算作业文件inode号
-        int iNodeIndex = DiskTool.getINodeIndex(processName) - 1;
-        CommonFile jobFile = (CommonFile) disk.getINodes()[iNodeIndex];
-        // 初始化PCB
-        PCB pcb = new PCB(iNodeIndex, processName, 0, jobFile.getSize(), CREATED, null, 0, -1, null,null);
-        // 计算进程所需页数
-        int requiredPageCount = jobFile.getSize() / PAGE_SIZE + 1;
-        // lru算法获得进程可以使用的页号
-        LinkedList<Integer> pageNumbers = lruPageSwap(requiredPageCount);
-        // 将该进程vpn->ppn 映射放入进程页表
-        HashMap<Integer, LinkedList<PageInfo>> processPageTable = protectedMemory.getProcessPageTable();
-        LinkedList<PageInfo> pageTable = new LinkedList<>();
-        for (int i = 0; i < requiredPageCount; i++) {
-            Integer ppn = pageNumbers.get(i); // PhysicalPageNumber
-            PageInfo pageInfo = new PageInfo(ppn, true, false, false);
-            pageTable.add(pageInfo);
-        }
-        processPageTable.put(iNodeIndex, pageTable);
-        // 磁盘块中作业文件复制进内存页
-        LinkedList<Integer> blockNumbers = jobFile.getBlockNumbers();
-        char[][] pages = userMemory.getPages();
-        char[][] blocks = disk.getBlocks();
-        int k = 0;
-        for (int i = 0; i < requiredPageCount; i++) {
-            for (int j = i * BLOCKS_PER_PAGE; j < (i + 1) * BLOCKS_PER_PAGE && k < jobFile.getBlockCount(); j++, k++) {
-                System.arraycopy(blocks[blockNumbers.get(j)], 0, pages[i], (j % BLOCKS_PER_PAGE) * BLOCK_SIZE, BLOCK_SIZE);
-            }
-        }
-        // 更新pcb状态
-        pcb.setState(READY);
-        // 获得指令数组，放进pcb中
-        int pageNumber = pageTable.get(0).getPageNumber();
-        String[] strings = new String(pages[pageNumber]).split("#");
-        String[] instructions = Arrays.copyOf(strings, strings.length - 1);
-        pcb.setInstructions(instructions);
+        int pid = getPid(processName);
+        HashMap<Integer, PCB> pcbTable = protectedMemory.getPcbTable();
+        PCB pcb = pcbTable.get(pid);
         // 封装成可提交任务对象
         ProcessExecutionTask processExecutionTask = new ProcessExecutionTask(pcb);
         // 有空闲CPU，直接提交
