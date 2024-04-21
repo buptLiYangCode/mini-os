@@ -3,7 +3,6 @@ package bupt.os.service.impl;
 
 import bupt.os.component.cpu.CPUSimulator;
 import bupt.os.component.cpu.ProcessExecutionTask;
-import bupt.os.component.disk.Block;
 import bupt.os.component.disk.Disk;
 import bupt.os.component.filesystem.CommonFile;
 import bupt.os.component.memory.*;
@@ -14,8 +13,10 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+import java.util.concurrent.ThreadPoolExecutor;
 
+import static bupt.os.common.constant.CommonConstant.BLOCKS_PER_PAGE;
 import static bupt.os.common.constant.InstructionConstant.A;
 import static bupt.os.common.constant.InstructionConstant.M;
 import static bupt.os.common.constant.ProcessStateConstant.CREATED;
@@ -27,7 +28,7 @@ import static bupt.os.component.memory.UserMemory.PAGE_SIZE;
 @Service
 public class ProcessManageServiceImpl implements ProcessManageService {
 
-    private final CPUSimulator cpuSimulator= CPUSimulator.getInstance();
+    private final CPUSimulator cpuSimulator = CPUSimulator.getInstance();
     private final Disk disk = Disk.getInstance();
     private final UserMemory userMemory = UserMemory.getInstance();
     private final ProtectedMemory protectedMemory = ProtectedMemory.getInstance();
@@ -53,7 +54,7 @@ public class ProcessManageServiceImpl implements ProcessManageService {
         commonFile.setBlockNumbers(freeBlockNumbers);
         // 将M 指令拆成对虚拟页号的访存指令，存进StringBuilder
         StringBuilder AInst = new StringBuilder();
-        for (int i = 0; i < Objects.requireNonNull(freeBlockNumbers).size(); i++) {
+        for (int i = 0; i < Objects.requireNonNull(freeBlockNumbers).size() / BLOCKS_PER_PAGE + 1; i++) {
             AInst.append(A).append(" ").append(i).append("#");
         }
         // 其他指令，存进StringBuilder
@@ -63,9 +64,10 @@ public class ProcessManageServiceImpl implements ProcessManageService {
             // #表示换行符
             sb.append(inst).append("#");
         }
+        System.out.println(sb);
         // 所有指令会写入分配给文件的block块中，从第一个块开始写
         Integer firstBlock = commonFile.getBlockNumbers().get(0);
-        char[] data = disk.getBlocks()[firstBlock].getData();
+        char[] data = disk.getBlocks()[firstBlock];
         char[] arr = sb.toString().toCharArray();
         System.arraycopy(arr, 0, data, 0, arr.length);
         // 初始化文件创建时间
@@ -78,18 +80,19 @@ public class ProcessManageServiceImpl implements ProcessManageService {
     }
 
     /**
-     * 执行进程
+     * 执行进程，指令放入CPB
      *
      * @param processName 进程名
      */
     @Override
     public void executeProcess(String processName) {
+
         // 1.先把作业文件加载进内存
         // 计算作业文件inode号
         int iNodeIndex = DiskTool.getINodeIndex(processName) - 1;
         CommonFile jobFile = (CommonFile) disk.getINodes()[iNodeIndex];
         // 初始化PCB
-        PCB pcb = new PCB(iNodeIndex, processName, 0, jobFile.getSize(), CREATED, null, 0, -1, null);
+        PCB pcb = new PCB(iNodeIndex, processName, 0, jobFile.getSize(), CREATED, null, 0, -1, null,null);
         // 计算进程所需页数
         int requiredPageCount = jobFile.getSize() / PAGE_SIZE + 1;
         // lru算法获得进程可以使用的页号
@@ -104,30 +107,38 @@ public class ProcessManageServiceImpl implements ProcessManageService {
         }
         processPageTable.put(iNodeIndex, pageTable);
         // 磁盘块中作业文件复制进内存页
-        int blocksPerPage = PAGE_SIZE / BLOCK_SIZE;
         LinkedList<Integer> blockNumbers = jobFile.getBlockNumbers();
-        Page[] pages = userMemory.getPages();
-        Block[] blocks = disk.getBlocks();
+        char[][] pages = userMemory.getPages();
+        char[][] blocks = disk.getBlocks();
+        int k = 0;
         for (int i = 0; i < requiredPageCount; i++) {
-            for (int j = i * blocksPerPage, k = 0; j < (i + 1) * blocksPerPage && k < jobFile.getBlockCount(); j++, k++) {
-                System.arraycopy(blocks[blockNumbers.get(j)].getData(), 0, pages[i].getData(), k * BLOCK_SIZE, BLOCK_SIZE);
+            for (int j = i * BLOCKS_PER_PAGE; j < (i + 1) * BLOCKS_PER_PAGE && k < jobFile.getBlockCount(); j++, k++) {
+                System.arraycopy(blocks[blockNumbers.get(j)], 0, pages[i], (j % BLOCKS_PER_PAGE) * BLOCK_SIZE, BLOCK_SIZE);
             }
         }
-        // 作业文件加载进内存页成为就绪进程
+        // 更新pcb状态
         pcb.setState(READY);
-        Queue<PCB> readyQueue = protectedMemory.getReadyQueue();
-        readyQueue.add(pcb); // 放进就绪队列
-        HashMap<Integer, PCB> pcbTable = protectedMemory.getPcbTable();
-        pcbTable.put(iNodeIndex, pcb);
-        // 2.将进程指令封装成可执行任务提交给线程池
+        // 获得指令数组，放进pcb中
         int pageNumber = pageTable.get(0).getPageNumber();
-        String[] strings = new String(pages[pageNumber].getData()).split("#");
+        String[] strings = new String(pages[pageNumber]).split("#");
         String[] instructions = Arrays.copyOf(strings, strings.length - 1);
-        // 提交动作
-        ProcessExecutionTask processExecutionTask = new ProcessExecutionTask(pcb, instructions);
-        ExecutorService cpu = cpuSimulator.getExecutor();
-        cpu.submit(processExecutionTask);
+        pcb.setInstructions(instructions);
+        // 封装成可提交任务对象
+        ProcessExecutionTask processExecutionTask = new ProcessExecutionTask(pcb);
+        // 有空闲CPU，直接提交
+        ThreadPoolExecutor cpuSimulatorExecutor = (ThreadPoolExecutor) cpuSimulator.getExecutor();
+        int idleThreads = cpuSimulatorExecutor.getMaximumPoolSize() - cpuSimulatorExecutor.getActiveCount();
+        if (idleThreads > 0) {
+            Future<?> future = cpuSimulatorExecutor.submit(processExecutionTask);
+            try {
+                future.get();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        } else {
+            // CPU都繁忙，pcb放进就绪队列
+            Queue<PCB> readyQueue = protectedMemory.getReadyQueue();
+            readyQueue.add(pcb);
+        }
     }
-
-
 }
