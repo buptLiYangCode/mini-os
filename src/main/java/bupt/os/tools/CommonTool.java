@@ -1,8 +1,12 @@
 package bupt.os.tools;
 
-public class CommonTool {
-    public static int get(String s) {
+import static bupt.os.component.disk.Disk.TOTAL_BLOCKS;
 
-        return 0;
+public class CommonTool {
+
+    // 根据processName 计算pid
+    public static int getPid(String fileName) {
+        int hashCode = fileName.hashCode();
+        return Math.abs(hashCode) % TOTAL_BLOCKS;
     }
 }
