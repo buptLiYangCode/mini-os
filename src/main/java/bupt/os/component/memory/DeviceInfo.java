@@ -1,10 +1,14 @@
 package bupt.os.component.memory;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.LinkedList;
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class DeviceInfo {
     // 设备id
     private int did;
