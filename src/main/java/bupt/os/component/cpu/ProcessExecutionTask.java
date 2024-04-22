@@ -167,7 +167,10 @@ public class ProcessExecutionTask implements Runnable {
                     Thread.sleep(writeTime); // Simulate file writing
                     log.info(pcb.getProcessName() + "：" + instruction + "执行完成");
                 }
-                case Q -> log.info(pcb.getProcessName() + "：" + instruction + "执行完成");
+                case Q -> {
+                    pcb.setIr(0);
+                    log.info(pcb.getProcessName() + "：" + instruction + "执行完成");
+                }
                 default -> log.info("Unknown command.");
             }
         } catch (InterruptedException e) {
