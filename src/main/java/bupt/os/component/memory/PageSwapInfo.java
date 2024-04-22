@@ -11,9 +11,12 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PageSwapInfo {
-    // 物理页号
-    private int ppn;
-    private boolean used;
+    // 当前页属于的进程号
+    private int pid;
+    // 虚拟页号
+    private int vpn;
+    // 页加载进磁盘时间
     private long loadTime;
+    // 页最近访问时间
     private long lastAccessTime;
 }
