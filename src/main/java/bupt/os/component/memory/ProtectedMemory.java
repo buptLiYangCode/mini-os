@@ -40,7 +40,7 @@ public class ProtectedMemory {
         pcbTable = new HashMap<>();
         allPagesInfo = new LinkedList<>();
         for (int i = 0; i < TOTAL_PAGES; i++) {
-            PageSwapInfo pageSwapInfo = new PageSwapInfo(i, false, 0L, 0L);
+            PageSwapInfo pageSwapInfo = new PageSwapInfo(-1, -1, 0L, 0L);
             allPagesInfo.add(pageSwapInfo);
         }
         deviceInfoTable = new LinkedList<>();
