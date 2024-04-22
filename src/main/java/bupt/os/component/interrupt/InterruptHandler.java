@@ -1,21 +1,20 @@
 package bupt.os.component.interrupt;
 
-import bupt.os.component.disk.Disk;
-import bupt.os.component.filesystem.CommonFile;
 import bupt.os.component.memory.PCB;
 import bupt.os.component.memory.PageInfo;
+import bupt.os.component.memory.PageSwapInfo;
 import bupt.os.component.memory.ProtectedMemory;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Queue;
 
-import static bupt.os.component.memory.MMU.loadPageIntoMemory;
+import static bupt.os.component.memory.MMU.lruPageSwap;
 
 @Slf4j
 public class InterruptHandler {
 
-    private static final Disk disk = Disk.getInstance();
     private static final ProtectedMemory protectedMemory = ProtectedMemory.getInstance();
 
     /**
@@ -40,11 +39,12 @@ public class InterruptHandler {
                     isSwitchProcess = true;
                 }
             }
+            // TODO 进程执行完了，IO中断才到irl 上，后续执行的进程 会读取到这些无用的IO中断信号
             case "IO_INTERRUPT" -> {
                 log.info("处理" + "IO_INTERRUPT");
                 runningQueue.remove(pcb);
                 readyQueue.add(pcb);
-                log.info("进程" + pcb.getProcessName() + "IO阻塞，放弃CPU");
+                log.info("进程" + pcb.getProcessName() + "进行IO，放弃CPU");
                 isSwitchProcess = true;
             }
         }
@@ -58,15 +58,31 @@ public class InterruptHandler {
      * @param vpn 需要重新加载进内存的虚拟页号
      */
     public static void handleSoftInterrupt(PCB pcb, int vpn) {
+        int loadPageNumber = lruPageSwap();
+        // 更新进程页表
         int pid = pcb.getPid();
-        CommonFile jobFile = (CommonFile) disk.getINodes()[pid];
-        LinkedList<Integer> blockNumbers = jobFile.getBlockNumbers();
-        // 将指定块加载进内存
-        Integer loadPageNumber = loadPageIntoMemory(blockNumbers);
-        // 更新页表
-        LinkedList<PageInfo> list = protectedMemory.getProcessPageTable().get(pid);
+        HashMap<Integer, LinkedList<PageInfo>> processPageTable = protectedMemory.getProcessPageTable();
+        LinkedList<PageInfo> list = processPageTable.get(pid);
         PageInfo pageInfo = list.get(vpn);
         pageInfo.setPageNumber(loadPageNumber);
+        pageInfo.setPresent(true);
+        // 更新页全部信息表
+        LinkedList<PageSwapInfo> allPagesInfo = protectedMemory.getAllPagesInfo();
+        PageSwapInfo pageSwapInfo = allPagesInfo.get(loadPageNumber);
+
+        int lastPid = pageSwapInfo.getPid();
+        int lastVpn = pageSwapInfo.getVpn();
+        // 如果该页已经被其他进程使用
+        if (lastPid != -1) {
+            LinkedList<PageInfo> lastList = processPageTable.get(lastPid);
+            PageInfo lastPageInfo = lastList.get(lastVpn);
+            lastPageInfo.setPresent(false);
+        }
+        pageSwapInfo.setPid(pid);
+        pageSwapInfo.setVpn(vpn);
+        pageSwapInfo.setLoadTime(System.currentTimeMillis());
+        pageSwapInfo.setLastAccessTime(System.currentTimeMillis());
+
         System.out.println("进程"+ pcb.getProcessName() + "vpn：" + vpn + "映射到ppn：" + loadPageNumber);
     }
 }
