@@ -50,8 +50,8 @@ public class ProcessManageServiceImpl implements ProcessManageService {
         String[] instructions = processCreateReqDTO.getInstructions();
         // 根据M 指令，计算作业文件大小
         int pageCount;
-        String MInst = Arrays.stream(instructions).filter(inst -> !M.equals(inst.charAt(0) + "")).toArray(String[]::new)[0];
-        pageCount = Integer.parseInt(MInst.split("")[1]);
+        String MInst = Arrays.stream(instructions).filter(inst -> M.equals(inst.charAt(0) + "")).toArray(String[]::new)[0];
+        pageCount = Integer.parseInt(MInst.split(" ")[1]);
         commonFile.setSize(pageCount * PAGE_SIZE);
         commonFile.setBlockCount(pageCount * BLOCKS_PER_PAGE);
         LinkedList<Integer> freeBlockNumbers = DiskTool.getFreeBlocks(disk, pageCount * BLOCKS_PER_PAGE);
@@ -84,11 +84,13 @@ public class ProcessManageServiceImpl implements ProcessManageService {
         HashMap<Integer, PCB> pcbTable = protectedMemory.getPcbTable();
         pcbTable.put(index, pcb);
         // 存储进程虚拟页号->物理页号的映射关系
-        LinkedList<PageInfo> pageInfoList = protectedMemory.getProcessPageTable().get(index);
+        HashMap<Integer, LinkedList<PageInfo>> processPageTable = protectedMemory.getProcessPageTable();
+        LinkedList<PageInfo> pageInfoList = new LinkedList<>();
         for (int i = 0; i < pageCount; i++) {
             PageInfo pageInfo = new PageInfo(-1, false);
             pageInfoList.add(pageInfo);
         }
+        processPageTable.put(index, pageInfoList);
     }
 
     /**
