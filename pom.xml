@@ -9,7 +9,7 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.example</groupId>
-    <artifactId>mini-os</artifactId>
+    <artifactId>mini-os</artifactId> 
     <version>0.0.1-SNAPSHOT</version>
     <name>mini-os</name>
     <description>mini-os</description>
