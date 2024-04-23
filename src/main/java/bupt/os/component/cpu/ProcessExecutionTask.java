@@ -13,8 +13,7 @@ import java.util.Queue;
 import java.util.concurrent.ExecutorService;
 
 import static bupt.os.common.constant.InstructionConstant.*;
-import static bupt.os.common.constant.ProcessStateConstant.READY;
-import static bupt.os.common.constant.ProcessStateConstant.RUNNING;
+import static bupt.os.common.constant.ProcessStateConstant.*;
 import static bupt.os.component.interrupt.InterruptHandler.handleHardInterrupt;
 import static bupt.os.component.interrupt.InterruptHandler.handleSoftInterrupt;
 import static bupt.os.component.memory.MMU.accessPage;
@@ -40,41 +39,34 @@ public class ProcessExecutionTask implements Runnable {
      */
     @Override
     public void run() {
-        startUpdate();
-        // CPU 收到时钟中断、执行IO指令都会切换进程
-        boolean isSwitchProcess;
 
-        for (int ir = pcb.getIr(); ir < instructions.length; ) {
+        startUpdate();
+        // CPU 收到时钟中断、执行IO指令都会切换进程，0表示未切换，1表示切换后放进就绪队列，2表示切换后放进等待队列
+        int isSwitchProcess;
+
+        for (int ir = pcb.getIr(); ir < instructions.length; ir = pcb.getIr()) {
+            System.out.println(protectedMemory.getReadyQueue().peek());
+            System.out.println(protectedMemory.getRunningQueue().peek());
+            System.out.println(protectedMemory.getWaitingQueue().peek());
+
             String instruction = instructions[ir];
-            // 执行到IO指令也会导致进程切换
+            // 执行到IO指令也会导致进程切换 isSwitchProcess = 2
             isSwitchProcess = executeInstruction(instruction);
-            ir++;
+            if (isSwitchProcess != 2)
+                pcb.setIr(pcb.getIr() + 1);
             // CPU每执行一条指令，都需要去检查 irl 是否有中断信号
             InterruptRequestLine interruptRequestLine = InterruptRequestLine.getInstance();
             String interruptRequest = interruptRequestLine.get();
             if (interruptRequest != null) {
                 log.info("收到中断信号: " + interruptRequest + ", 当前运行进程：" + pcb.getProcessName());
-                // 处理硬件中断信号，CPU去执行中断处理程序了，
+                // 处理硬件中断信号，CPU去执行中断处理程序了。时间片耗尽也会导致进程切换，isSwitchProcess = 1
                 isSwitchProcess = handleHardInterrupt(pcb, interruptRequest);
             }
-            // 发生进程切换，结束任务
-            if (isSwitchProcess) {
-                // 更新PCB状态
-                pcb.setIr(ir);
-                pcb.setState(READY);
-                pcb.setRemainingTime(0);
-                pcb.setStartTime(-1);
-                if (!instruction.equals(Q)) {
-                    // 放入就绪队列
-                    Queue<PCB> readyQueue = protectedMemory.getReadyQueue();
-                    readyQueue.add(pcb);
-                    // 移出运行队列
-                    Queue<PCB> runningQueue = protectedMemory.getRunningQueue();
-                    runningQueue.add(pcb);
-                }
+            // 时间片耗尽导致进程切换
+            if (isSwitchProcess > 0)
                 break;
-            }
         }
+        // TODO 提交进程给CPU的代码写在run 方法中，导致进程全部在等待设备完成，CPU空转。
         // 调度器将下一个待调度的进程放进线程池任务队列
         PCB nextProcessPcb = nextExecuteProcess();
         if (nextProcessPcb != null) {
@@ -110,16 +102,19 @@ public class ProcessExecutionTask implements Runnable {
      * @param instruction 指令
      * @return 是否发送进程切换
      */
-    private boolean executeInstruction(String instruction) {
-        log.info("当前指令" + instruction);
-        ProtectedMemory protectedMemory = ProtectedMemory.getInstance();
+    private int executeInstruction(String instruction) {
+
         LinkedList<DeviceInfo> deviceInfoTable = protectedMemory.getDeviceInfoTable();
+        Queue<PCB> waitingQueue = protectedMemory.getWaitingQueue();
+        Queue<PCB> runningQueue = protectedMemory.getRunningQueue();
         // 执行指令时，是否会导致进程切换
-        boolean isSwitchProcess = false;
+        int isSwitchProcess = 0;
+
 
         String[] parts = instruction.split(" ");
         String command = parts[0];
         try {
+            log.info("当前指令" + instruction);
             switch (command) {
                 case A -> {
                     int vpn = Integer.parseInt(parts[1]);
@@ -149,8 +144,15 @@ public class ProcessExecutionTask implements Runnable {
                         DeviceInfo deviceInfo = first.get();
                         LinkedList<IoRequest> ioRequestQueue = deviceInfo.getIoRequestQueue();
                         ioRequestQueue.add(new IoRequest(pcb, inputTime));
-                        // 发送进程切换
-                        isSwitchProcess = true;
+                        // 进程切换
+                        pcb.setState(WAITING);
+                        pcb.setRemainingTime(-1);
+                        pcb.setStartTime(-1);
+                        // 放入等待队列
+                        waitingQueue.add(pcb);
+                        // 移出运行队列
+                        runningQueue.remove(pcb);
+                        isSwitchProcess = 2;
                     }
                     log.info(pcb.getProcessName() + "：" + instruction + "执行完成");
                 }

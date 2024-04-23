@@ -10,6 +10,8 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Queue;
 
+import static bupt.os.common.constant.ProcessStateConstant.READY;
+import static bupt.os.common.constant.ProcessStateConstant.WAITING;
 import static bupt.os.component.memory.MMU.lruPageSwap;
 
 @Slf4j
@@ -19,41 +21,56 @@ public class InterruptHandler {
 
     /**
      * 硬件中断处理程序，如果发生进程切换，需要更新PCB状态
+     *
      * @param interruptRequest 中断信号
      * @return 是否切换进程，返回true，则当前运行进程出让CPU
      */
-    public static boolean handleHardInterrupt(PCB pcb, String interruptRequest) {
+    public static int handleHardInterrupt(PCB pcb, String interruptRequest) {
+        HashMap<Integer, PCB> pcbTable = protectedMemory.getPcbTable();
+
         Queue<PCB> runningQueue = protectedMemory.getRunningQueue();
         Queue<PCB> readyQueue = protectedMemory.getReadyQueue();
+        Queue<PCB> waitingQueue = protectedMemory.getWaitingQueue();
 
-        boolean isSwitchProcess = false;
-        switch (interruptRequest) {
-            case "TIMER_INTERRUPT" -> {
-                // 时间片耗尽了
-                if (System.currentTimeMillis() - pcb.getStartTime() > pcb.getRemainingTime()) {
-                    // 移除满足条件的元素
-                    runningQueue.remove(pcb);
-                    // 添加到就绪队列
-                    readyQueue.add(pcb);
-                    log.info("进程" + pcb.getProcessName() + "时间片耗尽");
-                    isSwitchProcess = true;
-                }
-            }
-            // TODO 进程执行完了，IO中断才到irl 上，后续执行的进程 会读取到这些无用的IO中断信号
-            case "IO_INTERRUPT" -> {
-                log.info("处理" + "IO_INTERRUPT");
-                runningQueue.remove(pcb);
+        int isSwitchProcess = 0;
+
+        if (interruptRequest.equals("TIMER_INTERRUPT")) {
+            // 时间片耗尽了，发生进程切换
+            if (System.currentTimeMillis() - pcb.getStartTime() > pcb.getRemainingTime()) {
+                pcb.setState(READY);
+                pcb.setRemainingTime(-1);
+                pcb.setStartTime(-1);
+                // 放入就绪队列
                 readyQueue.add(pcb);
-                log.info("进程" + pcb.getProcessName() + "进行IO，放弃CPU");
-                isSwitchProcess = true;
+                // 移出运行队列
+                runningQueue.remove(pcb);
+                log.info("进程" + pcb.getProcessName() + "时间片耗尽");
+                isSwitchProcess = 1;
             }
+        } else {
+            // IO操作完成中断，ir + 1
+            String[] strings = interruptRequest.split("-");
+            String interruptType = strings[0];
+            String pid = strings[1];
+            PCB pcbInWaitingQueue = pcbTable.get(Integer.parseInt(pid));
+            pcbInWaitingQueue.setIr(pcbInWaitingQueue.getIr() + 1);
+
+            pcbInWaitingQueue.setState(WAITING);
+            pcbInWaitingQueue.setRemainingTime(-1);
+            pcbInWaitingQueue.setStartTime(-1);
+            // 移出等待队列
+            waitingQueue.remove(pcbInWaitingQueue);
+            // 放入就绪队列
+            readyQueue.add(pcbInWaitingQueue);
         }
+
 
         return isSwitchProcess;
     }
 
     /**
      * 将错误页对应磁盘块，重新加载到内存中，更新页表上的ppn和present，换出的页present置为false
+     *
      * @param pcb pcb
      * @param vpn 需要重新加载进内存的虚拟页号
      */
@@ -83,6 +100,6 @@ public class InterruptHandler {
         pageSwapInfo.setLoadTime(System.currentTimeMillis());
         pageSwapInfo.setLastAccessTime(System.currentTimeMillis());
 
-        System.out.println("进程"+ pcb.getProcessName() + "vpn：" + vpn + "映射到ppn：" + loadPageNumber);
+        System.out.println("进程" + pcb.getProcessName() + "vpn：" + vpn + "映射到ppn：" + loadPageNumber);
     }
 }
