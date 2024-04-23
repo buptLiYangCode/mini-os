@@ -27,13 +27,17 @@ public class InterruptRequestLine {
         return instance;
     }
 
-    public void put(String item) {
+    public void offer(String item) {
         if (!item.equals("TIMER_INTERRUPT") || !concurrentLinkedQueue.contains("TIMER_INTERRUPT")) {
             concurrentLinkedQueue.offer(item);
         }
     }
 
-    public String get() {
+    public String poll() {
         return concurrentLinkedQueue.poll();
+    }
+
+    public String peek() {
+        return concurrentLinkedQueue.peek();
     }
 }

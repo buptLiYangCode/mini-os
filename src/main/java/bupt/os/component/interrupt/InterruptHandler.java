@@ -11,61 +11,92 @@ import java.util.LinkedList;
 import java.util.Queue;
 
 import static bupt.os.common.constant.ProcessStateConstant.READY;
-import static bupt.os.common.constant.ProcessStateConstant.WAITING;
 import static bupt.os.component.memory.MMU.lruPageSwap;
 
 @Slf4j
 public class InterruptHandler {
-
+    // 物理组件
     private static final ProtectedMemory protectedMemory = ProtectedMemory.getInstance();
+    private static final InterruptRequestLine irl = InterruptRequestLine.getInstance();
+    // 内核空间中存储的表
+    private static final HashMap<Integer, PCB> pcbTable = protectedMemory.getPcbTable();
+    private static final Queue<PCB> runningQueue = protectedMemory.getRunningQueue();
+    private static final Queue<PCB> readyQueue = protectedMemory.getReadyQueue();
+    private static final Queue<PCB> waitingQueue = protectedMemory.getWaitingQueue();
 
     /**
-     * 硬件中断处理程序，如果发生进程切换，需要更新PCB状态
+     * 硬件中断处理程序，如果发生进程切换，需要更新PCB状态，以及几个队列的状态
      *
-     * @param interruptRequest 中断信号
-     * @return 是否切换进程，返回true，则当前运行进程出让CPU
+     * @return 是否切换进程，返回1，则当前运行进程时间片耗尽，出让CPU。返回0，继续执行
      */
-    public static int handleHardInterrupt(PCB pcb, String interruptRequest) {
-        HashMap<Integer, PCB> pcbTable = protectedMemory.getPcbTable();
-
-        Queue<PCB> runningQueue = protectedMemory.getRunningQueue();
-        Queue<PCB> readyQueue = protectedMemory.getReadyQueue();
-        Queue<PCB> waitingQueue = protectedMemory.getWaitingQueue();
-
+    public static int handleHardInterrupt(PCB pcb) {
         int isSwitchProcess = 0;
-
-        if (interruptRequest.equals("TIMER_INTERRUPT")) {
-            // 时间片耗尽了，发生进程切换
-            if (System.currentTimeMillis() - pcb.getStartTime() > pcb.getRemainingTime()) {
-                pcb.setState(READY);
-                pcb.setRemainingTime(-1);
-                pcb.setStartTime(-1);
+        while (irl.peek() != null) {
+            String interruptRequest = irl.poll();
+            if (interruptRequest.equals("TIMER_INTERRUPT")) {
+                // 时间片耗尽了，发生进程切换
+                if (System.currentTimeMillis() - pcb.getStartTime() > pcb.getRemainingTime()) {
+                    pcb.setState(READY);
+                    pcb.setRemainingTime(-1);
+                    pcb.setStartTime(-1);
+                    // 放入就绪队列
+                    readyQueue.add(pcb);
+                    // 移出运行队列
+                    runningQueue.remove(pcb);
+                    log.info("进程" + pcb.getProcessName() + "时间片耗尽");
+                    isSwitchProcess = 1;
+                }
+            } else {
+                // IO操作完成中断，ir + 1
+                PCB pcbInWaitingQueue = getPcbInWaitingQueue(interruptRequest);
+                // 移出等待队列
+                waitingQueue.remove(pcbInWaitingQueue);
                 // 放入就绪队列
-                readyQueue.add(pcb);
-                // 移出运行队列
-                runningQueue.remove(pcb);
-                log.info("进程" + pcb.getProcessName() + "时间片耗尽");
-                isSwitchProcess = 1;
+                readyQueue.add(pcbInWaitingQueue);
+                log.info("进程" + pcbInWaitingQueue.getProcessName() + "IO操作完成");
             }
-        } else {
-            // IO操作完成中断，ir + 1
-            String[] strings = interruptRequest.split("-");
-            String interruptType = strings[0];
-            String pid = strings[1];
-            PCB pcbInWaitingQueue = pcbTable.get(Integer.parseInt(pid));
-            pcbInWaitingQueue.setIr(pcbInWaitingQueue.getIr() + 1);
-
-            pcbInWaitingQueue.setState(WAITING);
-            pcbInWaitingQueue.setRemainingTime(-1);
-            pcbInWaitingQueue.setStartTime(-1);
-            // 移出等待队列
-            waitingQueue.remove(pcbInWaitingQueue);
-            // 放入就绪队列
-            readyQueue.add(pcbInWaitingQueue);
         }
-
-
         return isSwitchProcess;
+    }
+
+    /**
+     * 专门处理IO完成中断
+     */
+    public static int handleHardInterruptIo() {
+        // count 是此次处理IO中断的个数
+        int count = 0;
+        while (irl.peek() != null) {
+            String interruptRequest = irl.poll();
+            if (!interruptRequest.equals("TIMER_INTERRUPT")) {
+                // IO操作完成中断，ir + 1
+                PCB pcbInWaitingQueue = getPcbInWaitingQueue(interruptRequest);
+                // 移出等待队列
+                waitingQueue.remove(pcbInWaitingQueue);
+                // 放入就绪队列
+                readyQueue.add(pcbInWaitingQueue);
+                log.info("进程" + pcbInWaitingQueue.getProcessName() + "IO操作完成");
+                count++;
+            }
+        }
+        return count;
+    }
+
+    /**
+     * 根据收到的IO完成中断信号，获得等待队列中的PCB
+     * @param interruptRequest 中断信号
+     * @return pcb
+     */
+    private static PCB getPcbInWaitingQueue(String interruptRequest) {
+        String[] strings = interruptRequest.split("-");
+        String interruptType = strings[0];
+        String pid = strings[1];
+        PCB pcbInWaitingQueue = pcbTable.get(Integer.parseInt(pid));
+        pcbInWaitingQueue.setIr(pcbInWaitingQueue.getIr() + 1);
+
+        pcbInWaitingQueue.setState(READY);
+        pcbInWaitingQueue.setRemainingTime(-1);
+        pcbInWaitingQueue.setStartTime(-1);
+        return pcbInWaitingQueue;
     }
 
     /**
