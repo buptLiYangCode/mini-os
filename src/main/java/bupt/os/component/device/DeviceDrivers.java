@@ -25,7 +25,7 @@ public class DeviceDrivers {
     private final DevicesSimulator devicesSimulator = DevicesSimulator.getInstance();
     private final InterruptRequestLine irl = InterruptRequestLine.getInstance();
 
-    @Scheduled(fixedRate = 1000) // 每隔100ms执行一次
+    @Scheduled(fixedRate = 100) // 每隔100ms执行一次
     public void checkAllDeviceQueue() {
         LinkedList<DeviceInfo> deviceInfoTable = protectedMemory.getDeviceInfoTable();
         for (DeviceInfo deviceInfo : deviceInfoTable) {
@@ -43,7 +43,7 @@ public class DeviceDrivers {
                     log.info(deviceInfo.getDeviceName() + "工作" + ioRequest.getUseTime() + "ms");
                     deviceInfo.setDeviceState(DEVICE_READY);
                     // 硬件设备发送IO操作完成 中断信号 到irl
-                    irl.put("IO_INTERRUPT-" + ioRequest.getPcb().getPid());
+                    irl.offer("IO_INTERRUPT-" + ioRequest.getPcb().getPid());
                 });
             }
         }
