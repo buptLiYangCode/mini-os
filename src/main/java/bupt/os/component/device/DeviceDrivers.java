@@ -43,7 +43,7 @@ public class DeviceDrivers {
                     log.info(deviceInfo.getDeviceName() + "工作" + ioRequest.getUseTime() + "ms");
                     deviceInfo.setDeviceState(DEVICE_READY);
                     // 硬件设备发送IO操作完成 中断信号 到irl
-                    irl.put("IO_INTERRUPT");
+                    irl.put("IO_INTERRUPT-" + ioRequest.getPcb().getPid());
                 });
             }
         }
