@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Process</title>
+    <script>
+        // 定义发送数据的函数
+        async function sendProcessData() {
+            const url = 'http://localhost:8080/mini-os/process/create'; // API 的 URL
+            const data = {
+                processName: "huahuo7",
+                instructions: [
+                    "M 2",
+                    "C 500",
+                    "A 0",
+                    "D K1 500",
+                    "D K2 200",
+                    "C 500",
+                    "A 1",
+                    "A 0",
+                    "C 500",
+                    "D P1 600",
+                    "Q"
+                ]
+            };
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST', // HTTP 方法
+                    headers: {
+                        'Content-Type': 'application/json' // 设置内容类型为 JSON
+                    },
+                    body: JSON.stringify(data) // 将 JavaScript 对象转换为字符串
+                });
+
+                if (response.ok) {
+                    const jsonResponse = await response.json();
+                    alert('Process created successfully!');
+                    console.log(jsonResponse); // 在控制台输出返回的结果
+                } else {
+                    throw new Error('Failed to create process');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+    </script>
+</head>
+<body>
+<h1>Create a New Process</h1>
+<button onclick="sendProcessData()">Send Data</button> <!-- 按钮点击时触发发送数据的函数 -->
+</body>
+</html>

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Execute Process</title>
+  <script>
+    async function executeProcess() {
+      const url = 'http://localhost:8080/mini-os/process/execute'; // API的URL
+      const processName = document.getElementById('processName').value; // 获取输入框的值
+
+      const data = { processName };
+
+      try {
+        const response = await fetch(url, {
+          method: 'POST', // HTTP方法
+          headers: {
+            'Content-Type': 'application/json' // 设置内容类型为JSON
+          },
+          body: JSON.stringify(data) // 将JavaScript对象转换为字符串
+        });
+
+        if (response.ok) {
+          alert('Process executed successfully!');
+        } else {
+          throw new Error('Failed to execute process');
+        }
+      } catch (error) {
+        alert(error.message); // 显示错误信息
+      }
+    }
+  </script>
+</head>
+<body>
+<h1>Execute a Process</h1>
+<label for="processName">Process Name:</label>
+<input type="text" id="processName" name="processName"><br><br>
+<button onclick="executeProcess()">Execute Process</button> <!-- 按钮点击时触发执行进程的函数 -->
+</body>
+</html>
