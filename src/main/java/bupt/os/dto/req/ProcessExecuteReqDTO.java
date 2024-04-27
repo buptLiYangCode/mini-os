@@ -7,6 +7,6 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ExecuteProcessReqDTO {
+public class ProcessExecuteReqDTO {
     private String processName;
 }

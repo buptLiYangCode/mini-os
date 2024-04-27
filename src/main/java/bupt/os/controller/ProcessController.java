@@ -2,11 +2,13 @@ package bupt.os.controller;
 
 import bupt.os.common.result.Result;
 import bupt.os.common.result.Results;
-import bupt.os.dto.req.ExecuteProcessReqDTO;
 import bupt.os.dto.req.ProcessCreateReqDTO;
+import bupt.os.dto.req.ProcessExecuteReqDTO;
+import bupt.os.dto.resp.ProcessQueryAllRespDTO;
 import bupt.os.service.ProcessManageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -20,6 +22,7 @@ public class ProcessController {
 
     /**
      * 创建进程
+     *
      * @param processCreateReqDTO 创建请求
      * @return ok
      */
@@ -31,14 +34,24 @@ public class ProcessController {
 
     /**
      * 执行进程
-     * @param executeProcessReqDTO 进程名
+     *
+     * @param processExecuteReqDTO 进程名
      * @return ok
      */
     @PostMapping("/mini-os/process/execute")
-    public Result<Void> executeProcess(@RequestBody ExecuteProcessReqDTO executeProcessReqDTO) {
-        String processName = executeProcessReqDTO.getProcessName();
-        log.info(processName +"----------------------------");
+    public Result<Void> executeProcess(@RequestBody ProcessExecuteReqDTO processExecuteReqDTO) {
+        String processName = processExecuteReqDTO.getProcessName();
+        log.info(processName + "----------------------------");
         processManageService.executeProcess(processName);
         return Results.success();
+    }
+
+    /**
+     * 查询所有进程信息
+     * @return info
+     */
+    @GetMapping("/mini-os/process/query-all")
+    public Result<ProcessQueryAllRespDTO> queryAllProcessInfo() {
+        return Results.success(processManageService.queryAllProcessInfo());
     }
 }

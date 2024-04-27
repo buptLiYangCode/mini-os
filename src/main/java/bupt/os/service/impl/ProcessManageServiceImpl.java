@@ -10,6 +10,7 @@ import bupt.os.component.memory.PageInfo;
 import bupt.os.component.memory.ProtectedMemory;
 import bupt.os.component.memory.UserMemory;
 import bupt.os.dto.req.ProcessCreateReqDTO;
+import bupt.os.dto.resp.ProcessQueryAllRespDTO;
 import bupt.os.service.ProcessManageService;
 import bupt.os.tools.DiskTool;
 import org.springframework.stereotype.Service;
@@ -21,6 +22,7 @@ import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.stream.Collectors;
 
 import static bupt.os.common.constant.CommonConstant.BLOCKS_PER_PAGE;
 import static bupt.os.common.constant.InstructionConstant.M;
@@ -48,7 +50,7 @@ public class ProcessManageServiceImpl implements ProcessManageService {
         commonFile.setFileName(processName);
         commonFile.setCreateTime(LocalDateTime.now());
         String[] instructions = processCreateReqDTO.getInstructions();
-        // 根据M 指令，计算作业文件大小
+        // 根据 M 指令，计算作业文件大小
         int pageCount;
         String MInst = Arrays.stream(instructions).filter(inst -> M.equals(inst.charAt(0) + "")).toArray(String[]::new)[0];
         pageCount = Integer.parseInt(MInst.split(" ")[1]);
@@ -121,5 +123,24 @@ public class ProcessManageServiceImpl implements ProcessManageService {
             Queue<PCB> readyQueue = protectedMemory.getReadyQueue();
             readyQueue.add(pcb);
         }
+    }
+
+    @Override
+    public ProcessQueryAllRespDTO queryAllProcessInfo() {
+        Queue<PCB> runningQueue = protectedMemory.getRunningQueue();
+        Queue<PCB> waitingQueue = protectedMemory.getWaitingQueue();
+        Queue<PCB> readyQueue = protectedMemory.getReadyQueue();
+
+        PCB pcb = runningQueue.peek();
+        int pid = -1;
+        String currInst = "";
+        long startTime = -1;
+        if (pcb != null) {
+            pid = pcb.getPid();
+            currInst = pcb.getInstructions()[pcb.getIr()];
+            System.out.println(pcb.getIr());
+            startTime = pcb.getStartTime();
+        }
+        return new ProcessQueryAllRespDTO(pid, currInst, startTime, waitingQueue.stream().map(PCB::getPid).collect(Collectors.toList()), readyQueue.stream().map(PCB::getPid).collect(Collectors.toList()));
     }
 }
