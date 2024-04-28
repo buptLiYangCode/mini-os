@@ -115,8 +115,8 @@ public class InterruptHandler {
         pageInfo.setPageNumber(loadPageNumber);
         pageInfo.setPresent(true);
         // 更新页全部信息表
-        LinkedList<PageSwapInfo> allPagesInfo = protectedMemory.getAllPagesInfo();
-        PageSwapInfo pageSwapInfo = allPagesInfo.get(loadPageNumber);
+        LinkedList<PageSwapInfo> allPageInfo = protectedMemory.getAllPageInfo();
+        PageSwapInfo pageSwapInfo = allPageInfo.get(loadPageNumber);
 
         int lastPid = pageSwapInfo.getPid();
         int lastVpn = pageSwapInfo.getVpn();
