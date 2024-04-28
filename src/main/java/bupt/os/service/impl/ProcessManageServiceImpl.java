@@ -8,7 +8,6 @@ import bupt.os.component.filesystem.CommonFile;
 import bupt.os.component.memory.PCB;
 import bupt.os.component.memory.PageInfo;
 import bupt.os.component.memory.ProtectedMemory;
-import bupt.os.component.memory.UserMemory;
 import bupt.os.dto.req.ProcessCreateReqDTO;
 import bupt.os.dto.resp.ProcessQueryAllRespDTO;
 import bupt.os.service.ProcessManageService;
@@ -35,7 +34,6 @@ public class ProcessManageServiceImpl implements ProcessManageService {
 
     private final CPUSimulator cpuSimulator = CPUSimulator.getInstance();
     private final Disk disk = Disk.getInstance();
-    private final UserMemory userMemory = UserMemory.getInstance();
     private final ProtectedMemory protectedMemory = ProtectedMemory.getInstance();
 
     /**

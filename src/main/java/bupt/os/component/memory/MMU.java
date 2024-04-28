@@ -9,7 +9,7 @@ import java.util.LinkedList;
 public class MMU {
     private static final ProtectedMemory protectedMemory = ProtectedMemory.getInstance();
 
-    private static final LinkedList<PageSwapInfo> allPagesInfo = protectedMemory.getAllPagesInfo();
+    private static final LinkedList<PageSwapInfo> allPageInfo = protectedMemory.getAllPageInfo();
     private static final HashMap<Integer, LinkedList<PageInfo>> processPageTable = protectedMemory.getProcessPageTable();
 
 
@@ -27,7 +27,7 @@ public class MMU {
             System.out.println("进程" + pcb.getProcessName() + "vpn：" + vpn + "ppn：" + pageInfo.getPageNumber() + "不在内存中");
             isPageFault = true;
         } else {
-            PageSwapInfo pageSwapInfo = allPagesInfo.get(pageInfo.getPageNumber());
+            PageSwapInfo pageSwapInfo = allPageInfo.get(pageInfo.getPageNumber());
             pageSwapInfo.setLastAccessTime(System.currentTimeMillis());
         }
         return isPageFault;
@@ -40,12 +40,12 @@ public class MMU {
      * @return 页号
      */
     public static int lruPageSwap() {
-        LinkedList<PageSwapInfo> allPagesInfo = protectedMemory.getAllPagesInfo();
+        LinkedList<PageSwapInfo> allPageInfo = protectedMemory.getAllPageInfo();
         // 选出1个lastAccessTime 最小的页
         int resNumber = -1;
         long latestAccessTime = System.currentTimeMillis();
-        for (int i = 0; i < allPagesInfo.size(); i++) {
-            PageSwapInfo pageSwapInfo = allPagesInfo.get(i);
+        for (int i = 0; i < allPageInfo.size(); i++) {
+            PageSwapInfo pageSwapInfo = allPageInfo.get(i);
             if (pageSwapInfo.getLastAccessTime() < latestAccessTime) {
                 latestAccessTime = pageSwapInfo.getLastAccessTime();
                 resNumber = i;

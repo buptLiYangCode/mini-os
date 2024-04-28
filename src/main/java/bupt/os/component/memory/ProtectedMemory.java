@@ -22,7 +22,7 @@ public class ProtectedMemory {
     // TODO 中断向量表
 
     // 页信息表，页最近访问时间，页进入内存的时间
-    private LinkedList<PageSwapInfo> allPagesInfo;
+    private LinkedList<PageSwapInfo> allPageInfo;
     // 设备控制表
     private LinkedList<DeviceInfo> deviceInfoTable;
 
@@ -38,10 +38,10 @@ public class ProtectedMemory {
         // 初始化数据结构
         processPageTable = new HashMap<>();
         pcbTable = new HashMap<>();
-        allPagesInfo = new LinkedList<>();
+        allPageInfo = new LinkedList<>();
         for (int i = 0; i < TOTAL_PAGES; i++) {
             PageSwapInfo pageSwapInfo = new PageSwapInfo(-1, -1, 0L, 0L);
-            allPagesInfo.add(pageSwapInfo);
+            allPageInfo.add(pageSwapInfo);
         }
         deviceInfoTable = new LinkedList<>();
 
