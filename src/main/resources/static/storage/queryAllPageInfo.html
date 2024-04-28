@@ -7,7 +7,7 @@
 <pre id="result"></pre>
 
 <script>
-    const url = 'http://localhost:8080/mini-os/process/query-all';
+    const url = 'http://localhost:8080/mini-os/memory/query-all';
 
     function fetchData() {
         fetch(url)
@@ -20,7 +20,7 @@
     }
 
     fetchData();
-    setInterval(fetchData, 1000);
+    setInterval(fetchData, 100);
 </script>
 </body>
 </html>
