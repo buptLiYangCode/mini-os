@@ -1,7 +1,7 @@
 package bupt.os.component.memory;
 
-import bupt.os.component.filesystem.INode;
-import bupt.os.component.filesystem.OpenFileInfo;
+import bupt.os.component.disk.filesystem_ly.INode;
+import bupt.os.component.disk.filesystem_ly.OpenFileInfo;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

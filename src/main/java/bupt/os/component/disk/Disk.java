@@ -1,6 +1,6 @@
 package bupt.os.component.disk;
 
-import bupt.os.component.filesystem.INode;
+import bupt.os.component.disk.filesystem_ly.INode;
 import lombok.Data;
 import org.springframework.stereotype.Component;
 

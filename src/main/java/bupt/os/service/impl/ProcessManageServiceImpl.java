@@ -4,7 +4,7 @@ package bupt.os.service.impl;
 import bupt.os.component.cpu.CPUSimulator;
 import bupt.os.component.cpu.ProcessExecutionTask;
 import bupt.os.component.disk.Disk;
-import bupt.os.component.filesystem.CommonFile;
+import bupt.os.component.disk.filesystem_ly.CommonFile;
 import bupt.os.component.memory.PCB;
 import bupt.os.component.memory.PageInfo;
 import bupt.os.component.memory.ProtectedMemory;
