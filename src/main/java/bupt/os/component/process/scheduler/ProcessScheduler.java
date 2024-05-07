@@ -3,8 +3,8 @@ package bupt.os.component.process.scheduler;
 import bupt.os.component.cpu.CPUSimulator;
 import bupt.os.component.cpu.ProcessExecutionTask;
 import bupt.os.component.interrupt.InterruptRequestLine;
-import bupt.os.component.memory.PCB;
-import bupt.os.component.memory.ProtectedMemory;
+import bupt.os.component.memory.ly.PCB;
+import bupt.os.component.memory.ly.ProtectedMemory;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Objects;

@@ -1,6 +1,5 @@
-package bupt.os.component.memory;
+package bupt.os.component.memory.ly;
 
-import bupt.os.component.disk.filesystem_ly.INode;
 import bupt.os.component.disk.filesystem_ly.OpenFileInfo;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -22,8 +21,8 @@ public class PCB {
     private int size;
     // 进程状态
     private String state;
-    // 工作目录,进程当前所在的目录，影响着进程对文件的操作
-    private INode iNode;
+    // 进程页表存储在内存中的页号
+    private int register;
     // 剩余可执行时间，单位ms
     private long remainingTime;
     // 本次执行开始的时间戳，UTC 时间 1970 年 1 月 1 日 00:00:00 以来经过的毫秒数

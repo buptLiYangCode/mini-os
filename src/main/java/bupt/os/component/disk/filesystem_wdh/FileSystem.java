@@ -1,8 +1,5 @@
 package bupt.os.component.disk.filesystem_wdh;
 
-
-// ls cd mkdir rm cat
-
 public class FileSystem {
     private FileSystemNode root;
     private FileSystemNode now_node;
@@ -16,20 +13,45 @@ public class FileSystem {
         return now_node;
     }
 
-    public FileSystem() {
+    private static FileSystem instance;
+    private FileSystem() {
         root = new FileSystemNode("/", true, null); //根目录
         now_path = "/";
         now_node = root;
+    }
+
+    public static FileSystem getInstance() {
+        if (instance == null) {
+            synchronized (FileSystem.class) {
+                if (instance == null) {
+                    instance = new FileSystem();
+                }
+            }
+        }
+        return instance;
     }
 
     public String getPath() {  //获取当前目录的路径
         return now_path;
     }
 
+    public boolean isRepeated(String name, FileSystemNode currentNode){  //检查是否重复
+        for(FileSystemNode child : currentNode.getChildren()){
+            if(child.getName().equals(name))
+                return true;
+        }
+        return false;
+    }
+
     public boolean isExist(String path){   //检查路径是否存在
 
         if(path.charAt(0) != '/'){
-            path = now_path + "/" + path;
+            if(now_path == "/"){
+                path = now_path + path;
+            }
+            else{
+                path = now_path + "/" + path;
+            }
         }
         String[] parts = path.split("/");
         FileSystemNode currentNode = root;
@@ -43,7 +65,7 @@ public class FileSystem {
                     break;
                 }
             }
-            if(!is_exist){
+            if(is_exist == false){
                 break;
             }
         }
@@ -66,36 +88,43 @@ public class FileSystem {
         return upper_path;
     }
 
-    public StatusMessage cd(String path){   //cd操作:跳转到对应目录    参数 : 路径 ——> '..':上级路径  '/~~~'：绝对路径  'dir/~~~':相对路径
-        if(path.equals("..")){
+    public String cd(String path){   //cd操作:跳转到对应目录    参数 : 路径 ——> '..':上级路径  '/~~~'：绝对路径  'dir/~~~':相对路径
+        if(path == ".."){
             if(now_path.equals("/")){
-                return new StatusMessage(true, now_path);
+                return now_path;
             }else{
                 now_path = upperPath();
                 now_node = now_node.getFather();
-                return new StatusMessage(true, now_path);
+                return now_path;
             }
         }
-
         if(path.charAt(0) != '/'){
-            path = "/" + path;
+            if(now_path == "/"){
+                path = now_path + path;
+            }
+            else{
+                path = now_path + "/" + path;
+            }
         }
-        if(isExist(path)){
-            return new StatusMessage(false, "No such file or directory");
+        if(!isExist(path)){
+            return "No such file or directory";
         }
-        now_path = path;
         String[] parts = now_path.split("/");
-        parts[0] = "/";
-        now_node = root;
+        FileSystemNode currentNode = root;
         for (int i = 1; i < parts.length; i++) {
             for (FileSystemNode child : now_node.getChildren()) {
                 if (child.getName().equals(parts[i])) {
-                    now_node = child;
+                    currentNode = child;
                     break;
                 }
             }
         }
-        return new StatusMessage(true, now_path);
+        if(!currentNode.isDirectory()){
+            return "Is a file";
+        }
+        now_node = currentNode;
+        now_path = path;
+        return now_path;
     }
 
     public String ls(){   //展示当前目录下的所有文件和目录
@@ -103,19 +132,23 @@ public class FileSystem {
         for (FileSystemNode child : now_node.getChildren()){
             contents += child.getName() + " ";
         }
-        System.out.println(contents);
         return contents;
     }
 
-    public StatusMessage cat(String path){   //展示对应文件的内容
+    public String cat(String path){   //展示对应文件的内容
         if(path.equals("/")){
-            return new StatusMessage(false, "Is a directory");
+            return "Is a directory";
         }
         if(path.charAt(0) != '/'){
-            path = now_path + "/" + path;
+            if(now_path == "/"){
+                path = now_path + path;
+            }
+            else{
+                path = now_path + "/" + path;
+            }
         }
-        if (isExist(path)){
-            return new StatusMessage(false, "No such file or directory");
+        if (!isExist(path)){
+            return "No such file or directory";
         }
         String[] parts = now_path.split("/");
         FileSystemNode currentNode = root;
@@ -127,117 +160,163 @@ public class FileSystem {
                 }
             }
         }
-        if(currentNode.isDirectory()){
-            return new StatusMessage(false, "Is a directory");
+        if(currentNode.isDirectory() == true){
+            return "Is a directory";
         }else{
-            return new StatusMessage(false, currentNode.getContent());
+            return currentNode.getContent();
         }
     }
 
-    public boolean mkdir(String path) {   //创建一个目录: 相对路径 / 绝对路径
+    public String makedir(String path) {   //创建一个目录: 相对路径 / 绝对路径
+        String[] parts = path.split("/"); ;
+        FileSystemNode currentNode;
+        int i;
         if(path.charAt(0) != '/'){
-            String[] parts = path.split("/");
-            FileSystemNode currentNode = now_node;
-            for (int i = 0; i < parts.length; i++) {
-                boolean found = false;
-                for (FileSystemNode child : currentNode.getChildren()) {
-                    if (child.getName().equals(parts[i])) {
-                        currentNode = child;
-                        found = true;
-                        break;
-                    }
-                }
-
-                if (!found) {
-                    FileSystemNode newNode = new FileSystemNode(parts[i], true, currentNode);
-                    currentNode.addChild(newNode);
-                    currentNode = newNode;
+            currentNode = now_node;
+            i = 0;
+        }
+        else{
+            i = 1;
+            currentNode = root;
+        }
+        for (; i < parts.length; i++) {
+            boolean found = false;
+            for (FileSystemNode child : currentNode.getChildren()) {
+                if (child.getName().equals(parts[i])) {
+                    currentNode = child;
+                    found = true;
+                    break;
                 }
             }
 
+            if (!found) {
+                FileSystemNode newNode = new FileSystemNode(parts[i], true, currentNode);
+                currentNode.addChild(newNode);
+                currentNode = newNode;
+            }
+        }
+        return "";
+    }
+
+    public String touch(String path) {   //创建一个文件: 相对路径 / 绝对路径
+        String[] parts = path.split("/"); ;
+        FileSystemNode currentNode;
+        int i;
+        if(path.charAt(0) != '/'){
+            currentNode = now_node;
+            i = 0;
+        }
+        else{
+            i = 1;
+            currentNode = root;
+        }
+        for (; i < parts.length - 1; i++) {
+            boolean found = false;
+            for (FileSystemNode child : currentNode.getChildren()) {
+                if (child.getName().equals(parts[i])) {
+                    currentNode = child;
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                FileSystemNode newNode = new FileSystemNode(parts[i], true, currentNode);
+                currentNode.addChild(newNode);
+                currentNode = newNode;
+            }
+        }
+        if(!isRepeated(parts[parts.length - 1], currentNode)){
+            FileSystemNode newNode = new FileSystemNode(parts[parts.length - 1], false, currentNode);
+            currentNode.addChild(newNode);
         }
 
-        else{
+        return "";
+    }
+
+
+    public String rmdir(String path){
+        if(isExist(path)){
+            if(path.charAt(0) != '/'){
+                if(now_path == "/"){
+                    path = now_path + path;
+                }
+                else{
+                    path = now_path + "/" + path;
+                }
+            }
+            String[] parts = now_path.split("/");
+            FileSystemNode currentNode = root;
+            for (int i = 1; i < parts.length; i++) {
+                for (FileSystemNode child : currentNode.getChildren()) {
+                    if (child.getName().equals(parts[i])) {
+                        currentNode = child;
+                        break;
+                    }
+                }
+            }
+            currentNode = null;
+        }
+        return "";
+    }
+
+    public String rmfile(String path){
+        if(path.equals("/"))
+        {
+            root.deleteChildren();
+        }
+        if(isExist(path)){
+            if(path.charAt(0) != '/'){
+                if(now_path == "/"){
+                    path = now_path + path;
+                }
+                else{
+                    path = now_path + "/" + path;
+                }
+            }
             String[] parts = path.split("/");
             FileSystemNode currentNode = root;
-
-            for (int i = 1; i < parts.length; i++) { //跳过根目录
-                boolean found = false;
-                for (FileSystemNode child : currentNode.getChildren()) {
-                    if (child.getName().equals(parts[i])) {
-                        currentNode = child;
-                        found = true;
-                        break;
-                    }
-                }
-
-                if (!found) {
-                    FileSystemNode newNode = new FileSystemNode(parts[i], true, currentNode);
-                    currentNode.addChild(newNode);
-                    currentNode = newNode;
-                }
-            }
-        }
-        return true;
-    }
-
-    public boolean mkfile(String path) {   //创建一个文件: 相对路径 / 绝对路径
-        if(path.charAt(0) != '/'){
-            String[] parts = path.split("/");
-            FileSystemNode currentNode = now_node;
             for (int i = 0; i < parts.length; i++) {
-                boolean found = false;
                 for (FileSystemNode child : currentNode.getChildren()) {
                     if (child.getName().equals(parts[i])) {
                         currentNode = child;
-                        found = true;
                         break;
                     }
                 }
-
-                if (!found) {
-                    FileSystemNode newNode = new FileSystemNode(parts[i], false, currentNode);
-                    currentNode.addChild(newNode);
-                    currentNode = newNode;
-                }
             }
-
-        }
-
-        else{
-            String[] parts = path.split("/");
-            FileSystemNode currentNode = root;
-
-            for (int i = 1; i < parts.length; i++) { //跳过根目录
-                boolean found = false;
-                for (FileSystemNode child : currentNode.getChildren()) {
-                    if (child.getName().equals(parts[i])) {
-                        currentNode = child;
-                        found = true;
-                        break;
-                    }
-                }
-
-                if (!found) {
-                    FileSystemNode newNode = new FileSystemNode(parts[i], false, currentNode);
-                    currentNode.addChild(newNode);
-                    currentNode = newNode;
+            FileSystemNode fatherNode = currentNode.getFather();
+            for (FileSystemNode child : fatherNode.getChildren()) {
+                if (child == currentNode) {
+                    fatherNode.deleteChild(child);
+                    break;
                 }
             }
         }
-        return true;
+        return "";
     }
-
 
     public String getStruct(FileSystemNode node, int depth){   //获取当前目录的文件结构 -- 采用树的后根遍历，递归调用
-        if(!node.isDirectory()){
-            return "\n" + "\t".repeat(depth) + node.getName();
+        if(node.isDirectory() == false){
+            return "\n" + "├───" + "───".repeat(depth - 1) + node.getName();
         }
-        String struct_info = "";
-        for(FileSystemNode child : node.getChildren()){
-            struct_info += getStruct(child, depth + 1);
+        else{
+            if(node.getChildren() == null)
+            {
+                return "\n" + "├───".repeat(depth) + node.getName();
+            }
+            String struct_info = "";
+            for(FileSystemNode child : node.getChildren()){
+                struct_info += getStruct(child, depth + 1);
+            }
+            return "\n" + "├" +"───".repeat(depth) + node.getName() + struct_info;
         }
-        return "\n" + "\t".repeat(depth) + node.getName() + struct_info;
+    }
+
+    public String fileTree(){
+        return getStruct(root, 0);
+    }
+
+    public String nowTree(){
+        return getStruct(now_node, 0);
     }
 
 }

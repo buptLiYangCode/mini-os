@@ -1,6 +1,6 @@
 package bupt.os.dto.resp;
 
-import bupt.os.component.memory.DeviceInfo;
+import bupt.os.component.memory.ly.DeviceInfo;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

@@ -1,7 +1,8 @@
 package bupt.os.component.disk.filesystem_wdh;
 
-import java.util.List;
+
 import java.util.ArrayList;
+import java.util.List;
 
 public class FileSystemNode {
     private String name;
@@ -14,7 +15,7 @@ public class FileSystemNode {
         this.name = name;
         this.isDirectory = isDirectory;
         this.father = father;
-        if(isDirectory){
+        if(isDirectory == true){
             this.children = new ArrayList<>();
             this.content = null;
         }else{
@@ -41,6 +42,21 @@ public class FileSystemNode {
 
     public List<FileSystemNode> getChildren() {
         return children;
+    }
+
+    public void deleteChildren(){
+        children.clear();
+        children = null;
+    }
+
+
+    public void deleteChild(FileSystemNode child){
+        for(FileSystemNode Child : children){
+            if(Child == child){
+                children.remove(Child);
+                break;
+            }
+        }
     }
 
     public void addChild(FileSystemNode child) {

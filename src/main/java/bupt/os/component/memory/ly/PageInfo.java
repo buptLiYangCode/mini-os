@@ -1,4 +1,4 @@
-package bupt.os.component.memory;
+package bupt.os.component.memory.ly;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

@@ -1,12 +1,14 @@
 package bupt.os.component.cpu;
 
 import bupt.os.component.interrupt.InterruptRequestLine;
-import bupt.os.component.memory.DeviceInfo;
-import bupt.os.component.memory.IoRequest;
-import bupt.os.component.memory.PCB;
-import bupt.os.component.memory.ProtectedMemory;
+import bupt.os.component.memory.ly.DeviceInfo;
+import bupt.os.component.memory.ly.IoRequest;
+import bupt.os.component.memory.ly.PCB;
+import bupt.os.component.memory.ly.ProtectedMemory;
+import bupt.os.component.memory.lyq.MemoryManagementImpl;
 import lombok.extern.slf4j.Slf4j;
 
+import java.nio.ByteBuffer;
 import java.util.LinkedList;
 import java.util.Optional;
 import java.util.Queue;
@@ -14,16 +16,15 @@ import java.util.Queue;
 import static bupt.os.common.constant.InstructionConstant.*;
 import static bupt.os.common.constant.ProcessStateConstant.*;
 import static bupt.os.component.interrupt.InterruptHandler.*;
-import static bupt.os.component.memory.MMU.accessPage;
 import static bupt.os.component.process.scheduler.ProcessScheduler.executeNextProcess;
 
 @Slf4j
 public class ProcessExecutionTask implements Runnable {
 
     // 物理组件
-    private static final CPUSimulator cpuSimulator = CPUSimulator.getInstance();
     private static final ProtectedMemory protectedMemory = ProtectedMemory.getInstance();
     private static final InterruptRequestLine irl = InterruptRequestLine.getInstance();
+    private static final MemoryManagementImpl mmu = new MemoryManagementImpl();
 
     // 保护空间存储的表
     LinkedList<DeviceInfo> deviceInfoTable = protectedMemory.getDeviceInfoTable();
@@ -50,7 +51,12 @@ public class ProcessExecutionTask implements Runnable {
         int isSwitchProcess;
 
         for (int ir = pcb.getIr(); ir < instructions.length; ir = pcb.getIr()) {
-
+            if (ir == 0) {
+                // TODO lyq 分配内存
+                // 2.分配驻留集，返回的是页表在内存中哪个页上
+                int pageTable = mmu.Allocate(pcb.getPid(), pcb.getSize());
+                pcb.setRegister(pageTable);
+            }
             String instruction = instructions[ir];
             if (instruction.equals(Q)) {
                 executeInstruction(instruction);
@@ -83,18 +89,18 @@ public class ProcessExecutionTask implements Runnable {
     }
 
     /**
-     * 进程（任务）开始执行时，先更新进程pcb，再将pcb移出就绪队列，放进运行队列
+     * 进程（任务）开始执行时：
+     * 1.先更新进程pcb，再将pcb移出就绪队列，放进运行队列
+     * 2.分配驻留集
      */
     private void startUpdate() {
-        ProtectedMemory protectedMemory = ProtectedMemory.getInstance();
-        // 更新pcb
+        // 1
         pcb.setState(RUNNING);
         pcb.setStartTime(System.currentTimeMillis());
         pcb.setRemainingTime(2000);
-        // 就绪队列
         readyQueue.removeIf(p -> p.equals(pcb));
-        // 运行队列
         runningQueue.add(pcb);
+
     }
 
     /**
@@ -113,15 +119,28 @@ public class ProcessExecutionTask implements Runnable {
             log.info("当前指令" + instruction);
             switch (command) {
                 case A -> {
-                    int vpn = Integer.parseInt(parts[1]);
-                    int pageNumber = protectedMemory.getProcessPageTable().get(pcb.getPid()).get(vpn).getPageNumber();
-                    System.out.println(vpn + "->" + pageNumber);
-                    // TODO 罗弈棋
-                    boolean isPageFault = accessPage(pcb, vpn);
-                    // 页错误属于软件中断
-                    if (isPageFault) {
-                        handleSoftInterrupt(pcb, vpn);
+                    // TODO lyq
+                    int logicAddress = Integer.parseInt(parts[1]);
+                    if (logicAddress == 8024){
+                        System.out.println("nihoa");
                     }
+                    byte[] byteArray = new byte[4];
+                    System.out.println("----------------------testtestetset:   "+pcb.getRegister());
+                    int result = mmu.Read(pcb.getRegister(), logicAddress, byteArray);
+                    if (result == 0) {
+                        System.out.println("逻辑地址" + logicAddress+ "访问成功");
+                    } else if (result == -1) {
+                        System.out.println("逻辑地址" + logicAddress+ "页错误");
+                        // TODO lyq
+
+                        handlePageFaultInterrupt(pcb.getRegister(), logicAddress, ByteBuffer.wrap(byteArray).getInt());
+                        mmu.Read(pcb.getRegister(), logicAddress, byteArray);
+                        System.out.println("将缺失页换入内存后，Read操作成功");
+                    } else if (result == -2) {
+                        System.out.println("逻辑地址" + logicAddress+ "越界访问");
+                    }
+
+
                     log.info("执行完" + instruction);
                 }
                 case C -> {
@@ -171,6 +190,10 @@ public class ProcessExecutionTask implements Runnable {
                     pcb.setState(CREATED);
                     pcb.setRemainingTime(-1);
                     pcb.setStartTime(-1);
+                    // TODO lyq 释放内存
+                    mmu.Free(pcb.getRegister());
+                    pcb.setRegister(-1);
+
                     // 移出运行队列
                     runningQueue.remove(pcb);
                     log.info(pcb.getProcessName() + "：" + instruction + "执行完成，***进程结束***");
@@ -183,4 +206,6 @@ public class ProcessExecutionTask implements Runnable {
         }
         return isSwitchProcess;
     }
+
+
 }
