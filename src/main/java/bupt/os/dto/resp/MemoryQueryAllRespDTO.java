@@ -1,15 +1,15 @@
 package bupt.os.dto.resp;
 
-import bupt.os.component.memory.PageSwapInfo;
+import bupt.os.component.memory.lyq.BitMapEntry;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.LinkedList;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class MemoryQueryAllRespDTO {
-    LinkedList<PageSwapInfo> pageSwapInfoList;
+    List<BitMapEntry> list;
 }

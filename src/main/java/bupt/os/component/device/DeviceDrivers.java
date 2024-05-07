@@ -1,9 +1,9 @@
 package bupt.os.component.device;
 
 import bupt.os.component.interrupt.InterruptRequestLine;
-import bupt.os.component.memory.DeviceInfo;
-import bupt.os.component.memory.IoRequest;
-import bupt.os.component.memory.ProtectedMemory;
+import bupt.os.component.memory.ly.DeviceInfo;
+import bupt.os.component.memory.ly.IoRequest;
+import bupt.os.component.memory.ly.ProtectedMemory;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;

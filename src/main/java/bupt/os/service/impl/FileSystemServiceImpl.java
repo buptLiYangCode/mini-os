@@ -1,46 +1,31 @@
 package bupt.os.service.impl;
 
 
+import bupt.os.component.disk.filesystem_wdh.FileSystem;
 import bupt.os.service.FileSystemService;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 public class FileSystemServiceImpl implements FileSystemService {
 
+    private final FileSystem fileSystem = FileSystem.getInstance();
     @Override
-    public String mkfile(String fileName) {
-        return null;
-    }
+    public String dealWithInst(String inst) {
+        String[] strings = inst.split(" ");
 
-    @Override
-    public String mkdir(String directoryName) {
-        return null;
-    }
-
-    @Override
-    public String rmdir(String directoryName) {
-        return null;
-    }
-
-    @Override
-    public String rmfile(String fileName) {
-        return null;
-    }
-
-    @Override
-    public List<String> ls() {
-        return null;
-    }
-
-    @Override
-    public String struct() {
-        return null;
-    }
-
-    @Override
-    public String cat() {
-        return null;
+        return switch (strings[0]) {
+            case "cd" -> fileSystem.cd(strings[1]);
+            case "ls" -> fileSystem.ls();
+            case "cat" -> fileSystem.cat(strings[1]);
+            case "touch" -> fileSystem.touch(strings[1]);
+            case "makedir" -> fileSystem.makedir(strings[1]);
+            case "rmfile" -> fileSystem.rmfile(strings[1]);
+            case "rmdir" -> fileSystem.rmdir(strings[1]);
+            case "fileTree" -> fileSystem.fileTree();
+            case "nowTree" -> fileSystem.nowTree();
+            // case "printFileTree" -> fileSystem.getStruct();
+            // ...
+            default -> "无法识别的指令";
+        };
     }
 }
