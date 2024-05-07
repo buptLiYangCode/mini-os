@@ -3,10 +3,15 @@ package bupt.os.component.memory.lyq;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class MemoryManagementImpl implements MemoryManagement {
+
+    /**
+     * 置换策略，LRU=0,LFU=1
+     */
+    public static int MODE = 0;
+
 
     private static void InitBitMap() {
         for (int[] Ints : bitMap) {
@@ -70,7 +75,13 @@ public class MemoryManagementImpl implements MemoryManagement {
         //完成虚实地址转换
         AtomicInteger block = new AtomicInteger(0);
         AtomicInteger startOffset = new AtomicInteger(0);
-        int result = MMU.translateAddress(register, logicAddress, block, startOffset, 0);
+
+        int result = 0;
+        if(MODE==0) {
+            result = MMU.translateAddress(register, logicAddress, block, startOffset, 0);
+        }else {
+            result = MMU.translateAddressLFU(register, logicAddress, block, startOffset, 0);
+        }
 
         if (result == BOUND_FAULT) return result;
         else if (result == PAGE_FAULT) {
@@ -94,7 +105,12 @@ public class MemoryManagementImpl implements MemoryManagement {
         //完成虚实地址转换
         AtomicInteger block = new AtomicInteger(0);
         AtomicInteger startOffset = new AtomicInteger(0);
-        int result = MMU.translateAddress(register, logicAddress, block, startOffset, 0);
+        int result = 0;
+        if(MODE==0) {
+            result = MMU.translateAddress(register, logicAddress, block, startOffset, 0);
+        }else {
+            result = MMU.translateAddressLFU(register, logicAddress, block, startOffset, 0);
+        }
 
         if (result == BOUND_FAULT) return result;
         else if (result == PAGE_FAULT) {
@@ -113,9 +129,9 @@ public class MemoryManagementImpl implements MemoryManagement {
 
 
     @Override
-    public List<BitMapEntry> getPageUsageBitmap() {
+    public ArrayList<BitMapEntry> getPageUsageBitmap() {
         BitMapEntry[] entries = new BitMapEntry[Memory.pageNums];
-        List<BitMapEntry> rt = new ArrayList<>();
+        ArrayList<BitMapEntry> rt = new ArrayList<>();
 
 
         for (int i = 0; i < bitMap.length; i++) {
@@ -143,6 +159,8 @@ public class MemoryManagementImpl implements MemoryManagement {
         ArrayList<Item> Table = new PageTable(pageTableArray).getPageTable();
 
         int pageNumber = (logicalAddress >> 10) & 0x3FFFFF;
+
+        System.out.println("换出第"+oldPage+"页，换入"+pageNumber+"页");
 //        System.out.println("lululu:"+pageNumber);
 
         Item oldItem = Table.get(oldPage);
@@ -160,7 +178,6 @@ public class MemoryManagementImpl implements MemoryManagement {
         oldItem.setBlock(newItem.getBlock());
         newItem.setBlock((byte) block);
 
-        System.out.println("换出第"+oldPage+"页，换入"+pageNumber+"页");
 
         PageTable.UpdatePageTable(register, Table);
         byte[] pageTableArray1 = Memory.readPage(register, 0, Memory.pageSize);
@@ -173,11 +190,22 @@ public class MemoryManagementImpl implements MemoryManagement {
 
 
         //修改TLB
-        MMU.updatePageMap(oldItem, newItem, MMU.TLB.get(register));
+        if(MODE==0) {
+            MMU.updatePageMap(oldItem, newItem, MMU.TLB.get(register));
+        }else{
+            MMU.updatePageMapLFU(oldItem, newItem, MMU.TLB.get(register));
+        }
 
         //修改Memory和当前页
         bitMap[block][1] = pageNumber;
+    }
 
-
+    /**
+     * 设置内存置换策略
+     *
+     * @param mode 模式，LRU=0，LFU=1
+     */
+    public static void setMode(int mode) {
+        MODE = mode;
     }
 }

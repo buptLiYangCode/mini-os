@@ -1,10 +1,21 @@
 package bupt.os.component.memory.lyq;
 
 
-import java.util.List;
+import java.util.ArrayList;
 
 //内存管理模块对外接口
 public interface MemoryManagement {
+
+    /**
+     * 置换策略：LRU
+     */
+    public static final int LRU = 0;
+
+    /**
+     * 置换策略：LFU
+     */
+    public static final int LFU = 1;
+
     /**
      * 查询成功
      */
@@ -77,7 +88,7 @@ public interface MemoryManagement {
      *
      * @return 页使用情况位图，格式为Json字符串，具体格式为前端在飞书文档中所要求
      */
-    public List<BitMapEntry> getPageUsageBitmap();
+    public ArrayList<BitMapEntry> getPageUsageBitmap();
 
 
     /**
@@ -93,5 +104,7 @@ public interface MemoryManagement {
      * @param oldPage       要被换出的页号，由read()和write()返回的bytep[] data转为 int 得到
      */
     public void PageFaultProcess(int register , int logicalAddress , int oldPage);
+
+
 
 }
