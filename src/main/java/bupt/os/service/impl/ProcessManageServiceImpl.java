@@ -3,7 +3,7 @@ package bupt.os.service.impl;
 
 import bupt.os.component.cpu.CPUSimulator;
 import bupt.os.component.cpu.ProcessExecutionTask;
-import bupt.os.component.disk.filesystem_ly.Disk;
+import bupt.os.component.filesystem.filesystem_ly.Disk;
 import bupt.os.component.memory.ly.PCB;
 import bupt.os.component.memory.ly.ProtectedMemory;
 import bupt.os.dto.req.ProcessCreateReqDTO;

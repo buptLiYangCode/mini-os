@@ -1,6 +1,6 @@
 package bupt.os.component.memory.ly;
 
-import bupt.os.component.disk.filesystem_ly.OpenFileInfo;
+import bupt.os.component.filesystem.filesystem_ly.OpenFileInfo;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

@@ -1,4 +1,4 @@
-package bupt.os.component.disk.filesystem_wdh;
+package bupt.os.component.filesystem.filesystem_wdh;
 
 public class FileSystem {
     private FileSystemNode root;

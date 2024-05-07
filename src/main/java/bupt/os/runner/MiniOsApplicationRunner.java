@@ -2,8 +2,8 @@ package bupt.os.runner;
 
 import bupt.os.component.cpu.CPUSimulator;
 import bupt.os.component.device.DevicesSimulator;
-import bupt.os.component.disk.filesystem_ly.Disk;
-import bupt.os.component.disk.filesystem_wdh.FileSystem;
+import bupt.os.component.filesystem.filesystem_ly.Disk;
+import bupt.os.component.filesystem.filesystem_wdh.FileSystem;
 import bupt.os.component.interrupt.InterruptRequestLine;
 import bupt.os.component.memory.ly.DeviceInfo;
 import bupt.os.component.memory.ly.ProtectedMemory;

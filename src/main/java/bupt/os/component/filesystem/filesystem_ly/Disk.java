@@ -1,4 +1,4 @@
-package bupt.os.component.disk.filesystem_ly;
+package bupt.os.component.filesystem.filesystem_ly;
 
 import lombok.Data;
 import org.springframework.stereotype.Component;

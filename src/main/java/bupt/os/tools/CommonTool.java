@@ -1,6 +1,6 @@
 package bupt.os.tools;
 
-import static bupt.os.component.disk.filesystem_ly.Disk.TOTAL_BLOCKS;
+import static bupt.os.component.filesystem.filesystem_ly.Disk.TOTAL_BLOCKS;
 
 public class CommonTool {
 

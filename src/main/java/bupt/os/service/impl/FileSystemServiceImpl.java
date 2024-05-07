@@ -1,7 +1,7 @@
 package bupt.os.service.impl;
 
 
-import bupt.os.component.disk.filesystem_wdh.FileSystem;
+import bupt.os.component.filesystem.filesystem_wdh.FileSystem;
 import bupt.os.service.FileSystemService;
 import org.springframework.stereotype.Service;
 

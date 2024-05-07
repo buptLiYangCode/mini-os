@@ -1,11 +1,11 @@
 package bupt.os.tools;
 
-import bupt.os.component.disk.filesystem_ly.Disk;
+import bupt.os.component.filesystem.filesystem_ly.Disk;
 
 import java.util.LinkedList;
 import java.util.Random;
 
-import static bupt.os.component.disk.filesystem_ly.Disk.TOTAL_BLOCKS;
+import static bupt.os.component.filesystem.filesystem_ly.Disk.TOTAL_BLOCKS;
 
 
 public class DiskTool {

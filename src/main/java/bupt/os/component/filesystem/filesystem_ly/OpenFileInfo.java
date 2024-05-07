@@ -1,4 +1,4 @@
-package bupt.os.component.disk.filesystem_ly;
+package bupt.os.component.filesystem.filesystem_ly;
 
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -6,7 +6,7 @@ import java.util.Optional;
 
 import static bupt.os.common.constant.FileTypeConstant.COMMON_FILE;
 import static bupt.os.common.constant.FileTypeConstant.DIRECTORY;
-import static bupt.os.component.disk.filesystem_ly.Disk.BLOCK_SIZE;
+import static bupt.os.component.filesystem.filesystem_ly.Disk.BLOCK_SIZE;
 
 public class OpenFileInfo {
     private final Disk disk = Disk.getInstance();
