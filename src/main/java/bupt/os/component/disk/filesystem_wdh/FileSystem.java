@@ -109,10 +109,10 @@ public class FileSystem {
         if(!isExist(path)){
             return "No such file or directory";
         }
-        String[] parts = now_path.split("/");
+        String[] parts = path.split("/");
         FileSystemNode currentNode = root;
         for (int i = 1; i < parts.length; i++) {
-            for (FileSystemNode child : now_node.getChildren()) {
+            for (FileSystemNode child : currentNode.getChildren()) {
                 if (child.getName().equals(parts[i])) {
                     currentNode = child;
                     break;
