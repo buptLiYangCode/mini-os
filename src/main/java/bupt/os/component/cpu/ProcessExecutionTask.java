@@ -151,6 +151,7 @@ public class ProcessExecutionTask implements Runnable {
                 case D -> {
                     long inputTime = Integer.parseInt(parts[2]);
                     String deviceName = parts[1];
+                    // 查询是否有同名设备
                     Optional<DeviceInfo> first = deviceInfoTable.stream()
                             .filter(deviceInfo -> deviceInfo.getDeviceName().equals(deviceName))
                             .findFirst();
@@ -158,6 +159,7 @@ public class ProcessExecutionTask implements Runnable {
                     if (first.isPresent()) {
                         DeviceInfo deviceInfo = first.get();
                         LinkedList<IoRequest> ioRequestQueue = deviceInfo.getIoRequestQueue();
+                        // 将设备使用请求添加进请求队列
                         ioRequestQueue.add(new IoRequest(pcb, inputTime));
                         // 进程切换
                         pcb.setState(WAITING);

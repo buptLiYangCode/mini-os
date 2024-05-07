@@ -27,6 +27,7 @@ public class DeviceDrivers {
 
     @Scheduled(fixedRate = 100) // 每隔100ms执行一次
     public void checkAllDeviceQueue() {
+        // 获取设备信息表
         LinkedList<DeviceInfo> deviceInfoTable = protectedMemory.getDeviceInfoTable();
         for (DeviceInfo deviceInfo : deviceInfoTable) {
             IoRequest peekIoRequest = deviceInfo.getIoRequestQueue().peek();

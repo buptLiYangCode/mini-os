@@ -59,7 +59,7 @@ public class InterruptHandler {
     }
 
     /**
-     * 专门处理IO完成中断
+     * 专门处理IO操作完成中断
      */
     public static int handleHardInterruptIo() {
         // count 是此次处理IO中断的个数
