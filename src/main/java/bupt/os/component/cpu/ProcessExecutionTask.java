@@ -98,7 +98,11 @@ public class ProcessExecutionTask implements Runnable {
         pcb.setState(RUNNING);
         pcb.setStartTime(System.currentTimeMillis());
         pcb.setRemainingTime(2000);
-        readyQueue.removeIf(p -> p.equals(pcb));
+        try {
+            readyQueue.removeIf(p -> p.equals(pcb));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
         runningQueue.add(pcb);
 
     }

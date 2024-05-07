@@ -4,7 +4,7 @@ import lombok.Data;
 
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 
 /**
@@ -22,20 +22,20 @@ public class ProtectedMemory {
     private LinkedList<DeviceInfo> deviceInfoTable;
 
     // 运行队列
-    private Queue<PCB> runningQueue;
+    private ConcurrentLinkedQueue<PCB> runningQueue;
     // 就绪队列
-    private Queue<PCB> readyQueue;
+    private ConcurrentLinkedQueue<PCB> readyQueue;
     // 等待队列
-    private Queue<PCB> waitingQueue;
+    private ConcurrentLinkedQueue<PCB> waitingQueue;
 
     // 私有构造函数，防止外部实例化
     private ProtectedMemory() {
         // 初始化数据结构
         pcbTable = new HashMap<>();
         deviceInfoTable = new LinkedList<>();
-        runningQueue = new LinkedList<>();
-        readyQueue = new LinkedList<>();
-        waitingQueue = new LinkedList<>();
+        runningQueue = new ConcurrentLinkedQueue<>();
+        readyQueue = new ConcurrentLinkedQueue<>();
+        waitingQueue = new ConcurrentLinkedQueue<>();
     }
 
     // 获取单例实例的静态方法
