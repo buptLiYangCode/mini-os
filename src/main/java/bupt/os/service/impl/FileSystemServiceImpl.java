@@ -21,11 +21,15 @@ public class FileSystemServiceImpl implements FileSystemService {
             case "makedir" -> fileSystem.makedir(strings[1]);
             case "rmfile" -> fileSystem.rmfile(strings[1]);
             case "rmdir" -> fileSystem.rmdir(strings[1]);
-            case "fileTree" -> fileSystem.fileTree();
             case "nowTree" -> fileSystem.nowTree();
             // case "printFileTree" -> fileSystem.getStruct();
             // ...
             default -> "无法识别的指令";
         };
+    }
+
+    @Override
+    public String printFileTree() {
+        return fileSystem.fileTree();
     }
 }
