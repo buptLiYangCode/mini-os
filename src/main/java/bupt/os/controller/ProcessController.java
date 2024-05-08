@@ -41,7 +41,7 @@ public class ProcessController {
     @PostMapping("/mini-os/process/execute")
     public Result<Void> executeProcess(@RequestBody ProcessExecuteReqDTO processExecuteReqDTO) {
         String processName = processExecuteReqDTO.getProcessName();
-        log.info(processName + "----------------------------");
+        log.info(processName + "----------------------------开始执行");
         processManageService.executeProcess(processName);
         return Results.success();
     }

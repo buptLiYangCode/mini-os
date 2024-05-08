@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Queue;
-import java.util.concurrent.Future;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.stream.Collectors;
 
@@ -74,12 +73,7 @@ public class ProcessManageServiceImpl implements ProcessManageService {
         ThreadPoolExecutor cpuSimulatorExecutor = (ThreadPoolExecutor) cpuSimulator.getExecutor();
         int idleThreads = cpuSimulatorExecutor.getMaximumPoolSize() - cpuSimulatorExecutor.getActiveCount();
         if (idleThreads > 0) {
-            Future<?> future = cpuSimulatorExecutor.submit(processExecutionTask);
-            try {
-                future.get();
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
+            cpuSimulatorExecutor.submit(processExecutionTask);
         } else {
             // CPU都繁忙，pcb放进就绪队列
             Queue<PCB> readyQueue = protectedMemory.getReadyQueue();
