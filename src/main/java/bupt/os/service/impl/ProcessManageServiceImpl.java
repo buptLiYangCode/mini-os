@@ -29,6 +29,12 @@ public class ProcessManageServiceImpl implements ProcessManageService {
     private final Disk disk = Disk.getInstance();
     private final ProtectedMemory protectedMemory = ProtectedMemory.getInstance();
 
+    // 表
+    private final HashMap<Integer, PCB> pcbTable = protectedMemory.getPcbTable();
+    private final Queue<PCB> readyQueue = protectedMemory.getReadyQueue();
+    private final Queue<PCB> runningQueue = protectedMemory.getRunningQueue();
+    private final Queue<PCB> waitingQueue = protectedMemory.getWaitingQueue();
+
     /**
      * 创建进程
      *
@@ -51,7 +57,7 @@ public class ProcessManageServiceImpl implements ProcessManageService {
 
         // 创建进程pcb，放进pcbTable
         PCB pcb = new PCB(index, processName, 0, pageCount * 1024, CREATED, -1, -1, -1, otherInst, null);
-        HashMap<Integer, PCB> pcbTable = protectedMemory.getPcbTable();
+
         pcbTable.put(index, pcb);
 
     }
@@ -65,7 +71,6 @@ public class ProcessManageServiceImpl implements ProcessManageService {
     public void executeProcess(String processName) {
 
         int pid = getPid(processName);
-        HashMap<Integer, PCB> pcbTable = protectedMemory.getPcbTable();
         PCB pcb = pcbTable.get(pid);
         // 封装成可提交任务对象
         ProcessExecutionTask processExecutionTask = new ProcessExecutionTask(pcb);
@@ -76,27 +81,12 @@ public class ProcessManageServiceImpl implements ProcessManageService {
             cpuSimulatorExecutor.submit(processExecutionTask);
         } else {
             // CPU都繁忙，pcb放进就绪队列
-            Queue<PCB> readyQueue = protectedMemory.getReadyQueue();
             readyQueue.add(pcb);
         }
     }
 
     @Override
     public ProcessQueryAllRespDTO queryAllProcessInfo() {
-        Queue<PCB> runningQueue = protectedMemory.getRunningQueue();
-        Queue<PCB> waitingQueue = protectedMemory.getWaitingQueue();
-        Queue<PCB> readyQueue = protectedMemory.getReadyQueue();
-
-        PCB pcb = runningQueue.peek();
-        int pid = -1;
-        String currInst = "";
-        long startTime = -1;
-        if (pcb != null) {
-            pid = pcb.getPid();
-            currInst = pcb.getInstructions()[pcb.getIr()];
-            System.out.println(pcb.getIr());
-            startTime = pcb.getStartTime();
-        }
-        return new ProcessQueryAllRespDTO(pid, currInst, startTime, waitingQueue.stream().map(PCB::getPid).collect(Collectors.toList()), readyQueue.stream().map(PCB::getPid).collect(Collectors.toList()));
+        return new ProcessQueryAllRespDTO(runningQueue.stream().toList(), waitingQueue.stream().map(PCB::getPid).collect(Collectors.toList()), readyQueue.stream().map(PCB::getPid).collect(Collectors.toList()));
     }
 }

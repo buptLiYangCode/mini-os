@@ -9,22 +9,10 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  */
 @Slf4j
 public class InterruptRequestLine {
-    private static volatile InterruptRequestLine instance;
     private final ConcurrentLinkedQueue<String> concurrentLinkedQueue;
 
-    private InterruptRequestLine() {
+    public InterruptRequestLine() {
         concurrentLinkedQueue = new ConcurrentLinkedQueue<>();
-    }
-
-    public static InterruptRequestLine getInstance() {
-        if (instance == null) {
-            synchronized (InterruptRequestLine.class) {
-                if (instance == null) {
-                    instance = new InterruptRequestLine();
-                }
-            }
-        }
-        return instance;
     }
 
     public void offer(String item) {

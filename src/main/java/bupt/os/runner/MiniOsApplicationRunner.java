@@ -4,7 +4,6 @@ import bupt.os.component.cpu.CPUSimulator;
 import bupt.os.component.device.DevicesSimulator;
 import bupt.os.component.filesystem.filesystem_ly.Disk;
 import bupt.os.component.filesystem.filesystem_wdh.FileSystem;
-import bupt.os.component.interrupt.InterruptRequestLine;
 import bupt.os.component.memory.ly.DeviceInfo;
 import bupt.os.component.memory.ly.ProtectedMemory;
 import bupt.os.component.memory.lyq.MemoryManagement;
@@ -27,16 +26,16 @@ public class MiniOsApplicationRunner implements ApplicationRunner {
     private final CPUSimulator cpuSimulator = CPUSimulator.getInstance();
     private final Disk disk = Disk.getInstance();
     private final ProtectedMemory protectedMemory = ProtectedMemory.getInstance();
-    private final InterruptRequestLine interruptRequestLine = InterruptRequestLine.getInstance();
     private final DevicesSimulator devicesSimulator = DevicesSimulator.getInstance();
     // 文件系统初始化
     private final FileSystem fileSystem = FileSystem.getInstance();
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
+
         // 内存初始化
         MemoryManagementImpl memoryManagement = new MemoryManagementImpl();
-        MemoryManagementImpl.setMode(MemoryManagement.LFU);
+        MemoryManagementImpl.setMode(MemoryManagement.LRU);
         memoryManagement.InitMemory();
 
         // 添加默认设备

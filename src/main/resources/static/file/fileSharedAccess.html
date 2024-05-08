@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>fileSharedAccess query</title>
+</head>
+<body>
+<pre id="result"></pre>
+
+<script>
+    const url = 'http://localhost:8080/mini-os/file-system/file-shared-access';
+
+    function fetchData() {
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                const pre = document.getElementById('result');
+                pre.textContent = JSON.stringify(data, null, 2);
+            })
+            .catch(error => console.error(error));
+    }
+
+    fetchData();
+    setInterval(fetchData, 100);
+</script>
+</body>
+</html>

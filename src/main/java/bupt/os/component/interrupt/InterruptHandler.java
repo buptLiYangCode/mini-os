@@ -14,14 +14,14 @@ import static bupt.os.common.constant.ProcessStateConstant.READY;
 public class InterruptHandler {
     // 物理组件
     private static final ProtectedMemory protectedMemory = ProtectedMemory.getInstance();
-    private static final InterruptRequestLine irl = InterruptRequestLine.getInstance();
+    private static final MemoryManagementImpl mmu = new MemoryManagementImpl();
+
     // 内核空间中存储的表
     private static final HashMap<Integer, PCB> pcbTable = protectedMemory.getPcbTable();
     private static final Queue<PCB> runningQueue = protectedMemory.getRunningQueue();
     private static final Queue<PCB> readyQueue = protectedMemory.getReadyQueue();
     private static final Queue<PCB> waitingQueue = protectedMemory.getWaitingQueue();
-
-    private static final MemoryManagementImpl mmu = new MemoryManagementImpl();
+    private static final HashMap<Long, InterruptRequestLine> irlTable = protectedMemory.getIrlTable();
 
     /**
      * 硬件中断处理程序，如果发生进程切换，需要更新PCB状态，以及几个队列的状态
@@ -30,8 +30,9 @@ public class InterruptHandler {
      */
     public static int handleHardInterrupt(PCB pcb) {
         int isSwitchProcess = 0;
-        while (irl.peek() != null) {
-            String interruptRequest = irl.poll();
+        InterruptRequestLine irl = irlTable.get(Thread.currentThread().getId());
+        String interruptRequest;
+        while ((interruptRequest = irl.poll()) != null) {
             if (interruptRequest.equals("TIMER_INTERRUPT")) {
                 // 时间片耗尽了，发生进程切换
                 if (System.currentTimeMillis() - pcb.getStartTime() > pcb.getRemainingTime()) {
@@ -64,6 +65,7 @@ public class InterruptHandler {
     public static int handleHardInterruptIo() {
         // count 是此次处理IO中断的个数
         int count = 0;
+        InterruptRequestLine irl = irlTable.get(Thread.currentThread().getId());
         while (irl.peek() != null) {
             String interruptRequest = irl.poll();
             if (!interruptRequest.equals("TIMER_INTERRUPT")) {
@@ -82,6 +84,7 @@ public class InterruptHandler {
 
     /**
      * 根据收到的IO完成中断信号，获得等待队列中的PCB
+     *
      * @param interruptRequest 中断信号
      * @return pcb
      */

@@ -1,5 +1,7 @@
 package bupt.os.component.memory.ly;
 
+import bupt.os.component.filesystem.filesystem_wdh.FileNode;
+import bupt.os.component.interrupt.InterruptRequestLine;
 import lombok.Data;
 
 import java.util.HashMap;
@@ -20,6 +22,10 @@ public class ProtectedMemory {
 
     // 设备控制表
     private LinkedList<DeviceInfo> deviceInfoTable;
+    // 文件信息表
+    private HashMap<FileNode, FileInfoo> fileInfoTable;
+    // irl表
+    private HashMap<Long, InterruptRequestLine> irlTable;
 
     // 运行队列
     private ConcurrentLinkedQueue<PCB> runningQueue;
@@ -33,6 +39,9 @@ public class ProtectedMemory {
         // 初始化数据结构
         pcbTable = new HashMap<>();
         deviceInfoTable = new LinkedList<>();
+        fileInfoTable = new HashMap<>();
+        this.irlTable = new HashMap<>();
+
         runningQueue = new ConcurrentLinkedQueue<>();
         readyQueue = new ConcurrentLinkedQueue<>();
         waitingQueue = new ConcurrentLinkedQueue<>();

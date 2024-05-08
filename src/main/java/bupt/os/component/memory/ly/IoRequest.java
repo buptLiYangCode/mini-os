@@ -10,4 +10,5 @@ import lombok.NoArgsConstructor;
 public class IoRequest {
     private PCB pcb;
     private long useTime;
+    private long threadId;
 }

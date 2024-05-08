@@ -10,7 +10,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.LinkedList;
 import java.util.List;
 
 @RestController
@@ -27,10 +26,6 @@ public class MemoryController {
     public Result<MemoryQueryAllRespDTO> queryAllMemoryInfo() {
         List<BitMapEntry> bitMapEntries = memoryManageService.queryAllMemoryInfo();
         MemoryQueryAllRespDTO memoryQueryAllRespDTO = new MemoryQueryAllRespDTO(bitMapEntries);
-        List<Integer> list = new LinkedList<>();
-        list.add(1);
-        list.add(1);
-        list.add(1);
         return Results.success(memoryQueryAllRespDTO);
     }
 }

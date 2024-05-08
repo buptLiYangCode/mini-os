@@ -52,6 +52,7 @@ public class ProcessController {
      */
     @GetMapping("/mini-os/process/query-all")
     public Result<ProcessQueryAllRespDTO> queryAllProcessInfo() {
-        return Results.success(processManageService.queryAllProcessInfo());
+        ProcessQueryAllRespDTO processQueryAllRespDTO = processManageService.queryAllProcessInfo();
+        return Results.success(processQueryAllRespDTO);
     }
 }

@@ -1,14 +1,23 @@
 package bupt.os.service.impl;
 
 
+import bupt.os.component.filesystem.filesystem_wdh.FileNode;
 import bupt.os.component.filesystem.filesystem_wdh.FileSystem;
+import bupt.os.component.memory.ly.FileInfoo;
+import bupt.os.component.memory.ly.ProtectedMemory;
 import bupt.os.service.FileSystemService;
 import org.springframework.stereotype.Service;
+
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
 
 @Service
 public class FileSystemServiceImpl implements FileSystemService {
 
     private final FileSystem fileSystem = FileSystem.getInstance();
+    private final ProtectedMemory protectedMemory = ProtectedMemory.getInstance();
     @Override
     public String dealWithInst(String inst) {
         String[] strings = inst.split(" ");
@@ -31,5 +40,21 @@ public class FileSystemServiceImpl implements FileSystemService {
     @Override
     public String printFileTree() {
         return fileSystem.fileTree();
+    }
+
+    @Override
+    public FileNode getFile(String filePath) {
+        return fileSystem.getFile(filePath);
+    }
+
+    @Override
+    public List<FileInfoo> fileSharedAccess() {
+        HashMap<FileNode, FileInfoo> fileInfoTable = protectedMemory.getFileInfoTable();
+        Set<FileNode> fileNodes = fileInfoTable.keySet();
+        List<FileInfoo> list = new LinkedList<>();
+        for (FileNode fileNode : fileNodes) {
+            list.add(fileInfoTable.get(fileNode));
+        }
+        return list;
     }
 }
