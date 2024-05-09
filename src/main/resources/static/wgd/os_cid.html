@@ -19,50 +19,59 @@
         <div class="rectangle">
             <div>
                 <span class="block-title" style="display: inline-flex;margin-right: 30px">进程管理</span>
-
+                <span style="display: inline-flex;">
+                    <form action="">
+                    <select name="cars" class="selector">
+                        <option value="volvo">Volvo</option>
+                        <option value="saab">Saab</option>
+                        <option value="fiat">Fiat</option>
+                        <option value="audi">Audi</option>
+                    </select>
+                </form>
+                </span>
             </div>
             <p class="subtitle">Running</p>
             <div class="running_process_background">
                 <table id="myTable" class="running_process_table">
                     <tr>
-                        <th id="cell_r0_c0"> </th>
-                        <td id="cell_r0_c1"> PID </td>
-                        <td id="cell_r0_c2">进程名称</td>
-                        <td id="cell_r0_c3">进程指令</td>
+                        <th> </th>
+                        <td > PID </td>
+                        <td>进程名称</td>
+                        <td>进程指令</td>
                     </tr>
                     <tr>
-                        <th id="cell_r1_c0">CPU1</th>
-                        <td id="cell_r1_c1"> </td>
-                        <td id="cell_r1_c2"> </td>
-                        <td id="cell_r1_c3"> </td>
+                        <th>CPU1 </th>
+                        <td id="pid_txt0">  </td>
+                        <td id="processName_txt0"> </td>
+                        <td id="currInst_txt0"> </td>
                     </tr>
                     <tr>
-                        <th id="cell_r2_c0">CPU2</th>
-                        <td id="cell_r2_c1"> </td>
-                        <td id="cell_r2_c2"> </td>
-                        <td id="cell_r2_c3"> </td>
+                        <th>CPU2 </th>
+                        <td id="pid_txt1">   </td>
+                        <td id="processName_txt1"> </td>
+                        <td id="currInst_txt1"> </td>
                     </tr>
                     <tr>
-                        <th id="cell_r3_c0">CPU3</th>
-                        <td id="cell_r3_c1"> </td>
-                        <td id="cell_r3_c2"> </td>
-                        <td id="cell_r3_c3"> </td>
+                        <th>CPU3 </th>
+                        <td id="pid_txt2">   </td>
+                        <td id="processName_txt2"> </td>
+                        <td id="currInst_txt2"> </td>
                     </tr>
                     <tr>
-                        <th id="cell_r4_c0">CPU4</th>
-                        <td id="cell_r4_c1"> </td>
-                        <td id="cell_r4_c2"> </td>
-                        <td id="cell_r4_c3"> </td>
+                        <th>CPU4 </th>
+                        <td id="pid_txt3">   </td>
+                        <td id="processName_txt3"> </td>
+                        <td id="currInst_txt3"> </td>
                     </tr>
                 </table>
             </div>
             <p class="subtitle">Waiting</p>
             <div class="content_line">
-                <div class="queue-container" id="waiting-queue-container"> </div>
+                <div class="queue-container" id="waiting-queue-container"> </div>
             </div>
-            <p class="subtitle">Ready      </p>
+            <p class="subtitle">Ready      </p>
             <div class="content_line">
-                <div class="queue-container" id="ready-queue-container"> </div>
+                <div class="queue-container" id="ready-queue-container"> </div>
             </div>
         </div>
     </div>
@@ -82,11 +91,11 @@
                 </span>
             </div>
             <div id="mem_matrix"></div>
-<!--            <div class="grid-container" id="grid-container">-->
-<!--                &lt;!&ndash; 动态生成小正方形 &ndash;&gt;-->
-<!--            </div>-->
-<!--            &lt;!&ndash; 气泡提示框 &ndash;&gt;-->
-<!--            <div class="tooltip" id="tooltip"></div>-->
+            <!--            <div class="grid-container" id="grid-container">-->
+            <!--                &lt;!&ndash; 动态生成小正方形 &ndash;&gt;-->
+            <!--            </div>-->
+            <!--            &lt;!&ndash; 气泡提示框 &ndash;&gt;-->
+            <!--            <div class="tooltip" id="tooltip"></div>-->
         </div>
     </div>
     <div class="column">
@@ -94,7 +103,12 @@
             <p class="block-title">文件系统</p>
             <div>
                 <div class="column" id="fs-tree" style="border: 2px slategray ;border-radius: 10px;white-space: pre-wrap;">
-                    ├/
+                    ProcessManager<br>
+                    ├── Algorithm.java<br>
+                    ├── Priority.java<br>
+                    ├── Process.java<br>
+                    ├── ProcessManager.java<br>
+                    └── Scheduler.java
                 </div>
             </div>
         </div>
@@ -118,10 +132,10 @@
                     <table id="kb1">
                         <thead>
                         <tr>
-                            <th>键盘 ⌨️</th>
+                            <th>键盘1 ⌨️</th>
                         </tr>
                         </thead>
-<!--                        <tbody  id="kkb1"></tbody>-->
+                        <!--                        <tbody  id="kkb1"></tbody>-->
                     </table>
                 </div>
             </div>
@@ -129,15 +143,15 @@
                 <table id="kb2">
                     <thead>
                     <tr>
-                        <th>显示器 🖥️</th>
+                        <th>键盘2 ⌨️</th>
                     </tr>
                     </thead>
-<!--                    <tbody>-->
-<!--                    <tr></tr>-->
-<!--                    <tr></tr>-->
-<!--                    <tr></tr>-->
-<!--                    <tr></tr>-->
-<!--                    </tbody>-->
+                    <!--                    <tbody>-->
+                    <!--                    <tr></tr>-->
+                    <!--                    <tr></tr>-->
+                    <!--                    <tr></tr>-->
+                    <!--                    <tr></tr>-->
+                    <!--                    </tbody>-->
                 </table>
             </div>
             <div class="table-wrapper">
