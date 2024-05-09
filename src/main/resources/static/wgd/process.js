@@ -16,7 +16,7 @@ function fetchData() {
                 const process = runningProcesses[i];
                 const pid = process.pid;
                 const processName = process.processName;
-                const currInst = process.instructions[process.ir];
+                const currInst = process.instructions[process.ir-1];
                 const startTime = process.startTime;
                 const runTime = (currentTimeMillis - startTime) / 1000;
 
