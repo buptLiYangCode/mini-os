@@ -31,7 +31,7 @@ function fetchData() {
                     if (deviceState === 'DEVICE_READY') {
                         cell.textContent = '设备就绪。';
                     } else if (deviceState === 'DEVICE_WORKING') {
-                        cell.textContent = '设备正在工作。';
+                        cell.textContent = '设备正在工作：' + deviceInfo.pid;
                     }
                     row.appendChild(cell);
                     tbody.appendChild(row);
@@ -49,7 +49,7 @@ function fetchData() {
                         // table.appendChild(thead);
                         ioRequestQueue.forEach(request => {
                             // 注意本组给的格式，李洋给了整个PCB
-                            const processName = request.pcb.processName;
+                            const processName = request.pcb.pid;
                             const row = document.createElement('tr');
                             const cell = document.createElement('td');
                             cell.textContent = processName; // 请求格式为字符串
