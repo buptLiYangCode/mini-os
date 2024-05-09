@@ -12,24 +12,24 @@ function fetchData() {
             const waitingQueue = data.data.waitingQueue;
             const readyQueue = data.data.readyQueue;
             // 获取各个数据
-            for (let i = 0; i < runningProcesses.length; i++) {
+            for (let i = 1; i <= runningProcesses.length; i++) {
                 const process = runningProcesses[i];
                 const pid = process.pid;
                 const processName = process.processName;
-                const currInst = process.instructions[process.ir-1];
+                const currInst = process.instructions[process.ir - 1];
                 const startTime = process.startTime;
                 const runTime = (currentTimeMillis - startTime) / 1000;
 
                 // Update the existing HTML elements with new data
-                document.getElementById(`pid_txt${i}`).textContent = pid;
-                document.getElementById(`processName_txt${i}`).textContent = processName;
-                document.getElementById(`currInst_txt${i}`).textContent = currInst;
+                document.getElementById(`cell_r${i}_c1`).textContent = pid;
+                document.getElementById(`cell_r${i}_c2`).textContent = processName;
+                document.getElementById(`cell_r${i}_c3`).textContent = currInst;
             }
-            for (let i = 3; i >= runningProcesses.length; i--) {
+            for (let i = 1; i <= 4; i++) {
                 // Update the existing HTML elements with new data
-                document.getElementById(`pid_txt${i}`).textContent = "";
-                document.getElementById(`processName_txt${i}`).textContent = "";
-                document.getElementById(`currInst_txt${i}`).textContent = "";
+                document.getElementById(`cell_r${i}_c1`).textContent = "";
+                document.getElementById(`cell_r${i}_c2`).textContent = "";
+                document.getElementById(`cell_r${i}_c3`).textContent = "";
             }
 
             updateQueue(waitingQueue, readyQueue);

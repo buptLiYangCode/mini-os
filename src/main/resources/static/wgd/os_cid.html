@@ -19,61 +19,42 @@
         <div class="rectangle">
             <div>
                 <span class="block-title" style="display: inline-flex;margin-right: 30px">进程管理</span>
-                <span style="display: inline-flex;">
-                    <form action="">
-                    <select name="cars" class="selector">
-                        <option value="volvo">Volvo</option>
-                        <option value="saab">Saab</option>
-                        <option value="fiat">Fiat</option>
-                        <option value="audi">Audi</option>
-                    </select>
-                </form>
-                </span>
+
             </div>
             <p class="subtitle">Running</p>
-            <div  class="content_line" >
-                <div class="info">  PID   
-                    <span class="context" id="pid_txt0"></span>
-                </div>
-                <div class="info" >进程名称
-                    <span class="context" id="processName_txt0"></span>
-                </div>
-                <div class="info" >指令名称
-                    <span class="context" id="currInst_txt0"></span>
-                </div>
-            </div>
-            <div  class="content_line" >
-                <div class="info">  PID   
-                    <span class="context" id="pid_txt1"></span>
-                </div>
-                <div class="info" >进程名称
-                    <span class="context" id="processName_txt1"></span>
-                </div>
-                <div class="info" >指令名称
-                    <span class="context" id="currInst_txt1"></span>
-                </div>
-            </div>
-            <div  class="content_line" >
-                <div class="info">  PID   
-                    <span class="context" id="pid_txt2"></span>
-                </div>
-                <div class="info" >进程名称
-                    <span class="context" id="processName_txt2"></span>
-                </div>
-                <div class="info" >指令名称
-                    <span class="context" id="currInst_txt2"></span>
-                </div>
-            </div>
-            <div  class="content_line" >
-                <div class="info">  PID   
-                    <span class="context" id="pid_txt3"></span>
-                </div>
-                <div class="info" >进程名称
-                    <span class="context" id="processName_txt3"></span>
-                </div>
-                <div class="info" >指令名称
-                    <span class="context" id="currInst_txt3"></span>
-                </div>
+            <div class="running_process_background">
+                <table id="myTable" class="running_process_table">
+                    <tr>
+                        <th id="cell_r0_c0"> </th>
+                        <td id="cell_r0_c1"> PID </td>
+                        <td id="cell_r0_c2">进程名称</td>
+                        <td id="cell_r0_c3">进程指令</td>
+                    </tr>
+                    <tr>
+                        <th id="cell_r1_c0">CPU1</th>
+                        <td id="cell_r1_c1"> </td>
+                        <td id="cell_r1_c2"> </td>
+                        <td id="cell_r1_c3"> </td>
+                    </tr>
+                    <tr>
+                        <th id="cell_r2_c0">CPU2</th>
+                        <td id="cell_r2_c1"> </td>
+                        <td id="cell_r2_c2"> </td>
+                        <td id="cell_r2_c3"> </td>
+                    </tr>
+                    <tr>
+                        <th id="cell_r3_c0">CPU3</th>
+                        <td id="cell_r3_c1"> </td>
+                        <td id="cell_r3_c2"> </td>
+                        <td id="cell_r3_c3"> </td>
+                    </tr>
+                    <tr>
+                        <th id="cell_r4_c0">CPU4</th>
+                        <td id="cell_r4_c1"> </td>
+                        <td id="cell_r4_c2"> </td>
+                        <td id="cell_r4_c3"> </td>
+                    </tr>
+                </table>
             </div>
             <p class="subtitle">Waiting</p>
             <div class="content_line">
@@ -113,7 +94,7 @@
             <p class="block-title">文件系统</p>
             <div>
                 <div class="column" id="fs-tree" style="border: 2px slategray ;border-radius: 10px;white-space: pre-wrap;">
-
+                    ├/
                 </div>
             </div>
         </div>
@@ -137,7 +118,7 @@
                     <table id="kb1">
                         <thead>
                         <tr>
-                            <th>键盘1 ⌨️</th>
+                            <th>键盘 ⌨️</th>
                         </tr>
                         </thead>
 <!--                        <tbody  id="kkb1"></tbody>-->
@@ -148,7 +129,7 @@
                 <table id="kb2">
                     <thead>
                     <tr>
-                        <th>键盘2 ⌨️</th>
+                        <th>显示器 🖥️</th>
                     </tr>
                     </thead>
 <!--                    <tbody>-->
