@@ -33,15 +33,9 @@ public class Memory {
      * @param data        要写入的数据数组
      */
     public static void writePage(int pageIndex, int startOffset, byte[] data) {
-
-//        System.out.println(pageIndex);
-//        System.out.println(startOffset);
-//        System.out.println(data.length);
-
         if (pageIndex < 0 || pageIndex >= pageNums || startOffset < 0 || data == null || startOffset + data.length > pageSize) {
             throw new IllegalArgumentException("Invalid pageIndex, startOffset, or data");
         }
-
         System.arraycopy(data, 0, byteArray, pageIndex * pageSize + startOffset, data.length);
     }
 

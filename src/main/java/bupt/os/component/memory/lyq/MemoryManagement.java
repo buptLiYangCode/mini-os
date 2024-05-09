@@ -9,12 +9,12 @@ public interface MemoryManagement {
     /**
      * 置换策略：LRU
      */
-    public static final int LRU = 0;
+    public static final int MODE_LRU = 0;
 
     /**
      * 置换策略：LFU
      */
-    public static final int LFU = 1;
+    public static final int MODE_LFU = 1;
 
     /**
      * 查询成功

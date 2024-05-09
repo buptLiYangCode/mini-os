@@ -16,14 +16,12 @@ public class LFU {
      */
     public static int findPage(ArrayList<Item> pageTable, int register) {
         int pid = MemoryManagement.bitMap[register][0];
-//        System.out.println(pid);
         int block = -1;
 
         //驻留集中有空，空的页号为i
         for (int i = 0; i < MemoryManagement.bitMap.length; i++) {
             if (MemoryManagement.bitMap[i][0] == pid && MemoryManagement.bitMap[i][1] == -1) {
                 block = i;
-//                System.out.println("找到空block"+i);
                 break;
             }
         }
@@ -37,11 +35,8 @@ public class LFU {
                 if (item.getState() == PageTable.IN_MEMORY && item.getAccess() < minAccessValue) {
                     minAccessIndex = i;
                     minAccessValue = item.getAccess();
-
-//                    System.out.println("hahhaha"+maxAccessIndex+" "+maxAccessValue);
                 }
             }
-//            System.out.println("LRU:"+maxAccessIndex);
         } else {
             for (int i = 0; i < pageTable.size(); i++) {
                 Item item = pageTable.get(i);
@@ -50,8 +45,6 @@ public class LFU {
                 }
             }
         }
-
         return minAccessIndex;
-
     }
 }

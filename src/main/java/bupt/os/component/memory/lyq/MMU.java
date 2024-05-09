@@ -5,8 +5,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
-
-
 public class MMU {
     /**
      * TLB，页表的链表，共十个页表，每个页表有128个页表项，每次访问的时候先访问TLB，然后修改TLB，注意TLB的同步
@@ -303,16 +301,7 @@ public class MMU {
      * @param pageMap 要更新的PageMap
      */
     public static void updatePageMap(Item oldItem, Item newItem, Map<Integer, Item> pageMap) {
-
-//        for (Item currentItem : pageMap.values()) {
-//            if (currentItem.getPageIndex() == oldItem.getPageIndex()) {
-//                pageMap.remove(currentItem.getPageIndex());
-//            }
-//        }这里出错了
-
         pageMap.values().removeIf(currentItem -> currentItem.getPageIndex() == oldItem.getPageIndex());
-
-
         if (pageMap.size() < 3) {
 
             // 如果pageMap中的条目数量小于3，则直接插入Item
@@ -328,8 +317,6 @@ public class MMU {
                     maxAccess = currentItem.getAccess();
                 }
             }
-
-
 
             // 如果找到了access值最大的item，则用传入的Item替换掉原来的
             if (maxAccessItem != null) {
@@ -381,15 +368,7 @@ public class MMU {
      * @param pageMap 要更新的PageMap
      */
     public static void updatePageMapLFU(Item oldItem, Item newItem, Map<Integer, Item> pageMap) {
-
-//        for (Item currentItem : pageMap.values()) {
-//            if (currentItem.getPageIndex() == oldItem.getPageIndex()) {
-//                pageMap.remove(currentItem.getPageIndex());
-//            }
-//        }这里出错了
-
         pageMap.values().removeIf(currentItem -> currentItem.getPageIndex() == oldItem.getPageIndex());
-
 
         if (pageMap.size() < 3) {
 
@@ -407,8 +386,6 @@ public class MMU {
                 }
             }
 
-
-
             // 如果找到了access值最大的item，则用传入的Item替换掉原来的
             if (minAccessItem != null) {
                 pageMap.remove(minAccessItem.getPageIndex());
@@ -417,9 +394,4 @@ public class MMU {
         }
     }
 }
-
-
-
-
-
 
