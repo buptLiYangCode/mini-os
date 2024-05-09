@@ -18,6 +18,8 @@ public class DeviceInfo {
     private String deviceType;
     // 设备状态
     private String deviceState;
+    // 设备状态
+    private Integer pid;
     // 进程发送的IO请求队列
     private LinkedList<IoRequest> ioRequestQueue;
 }

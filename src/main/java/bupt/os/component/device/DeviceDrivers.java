@@ -36,6 +36,7 @@ public class DeviceDrivers {
             IoRequest peekIoRequest = deviceInfo.getIoRequestQueue().peek();
             if (deviceInfo.getDeviceState().equals(DEVICE_READY) && peekIoRequest != null) {
                 IoRequest ioRequest = deviceInfo.getIoRequestQueue().poll();
+                deviceInfo.setPid(ioRequest.getPcb().getPid());
                 // 将io请求发送给对应设备处理
                 devicesSimulator.submitTask(deviceInfo.getDeviceName(), () -> {
                     try {
