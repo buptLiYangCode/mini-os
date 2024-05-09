@@ -35,7 +35,7 @@ public class MiniOsApplicationRunner implements ApplicationRunner {
 
         // 内存初始化
         MemoryManagementImpl memoryManagement = new MemoryManagementImpl();
-        MemoryManagementImpl.setMode(MemoryManagement.LRU);
+        MemoryManagementImpl.setMode(MemoryManagement.MODE_LFU);
         memoryManagement.InitMemory();
 
         // 添加默认设备
@@ -45,13 +45,13 @@ public class MiniOsApplicationRunner implements ApplicationRunner {
         devicesSimulator.addDevice("P1");
 
         LinkedList<DeviceInfo> deviceInfoTable = protectedMemory.getDeviceInfoTable();
-        DeviceInfo deviceInfo1 = new DeviceInfo(1, "K1", "K", DEVICE_READY, new LinkedList<>());
+        DeviceInfo deviceInfo1 = new DeviceInfo(1, "K1", "K", DEVICE_READY, -1, new LinkedList<>());
         deviceInfoTable.add(deviceInfo1);
-        DeviceInfo deviceInfo2 = new DeviceInfo(2, "K2", "K", DEVICE_READY, new LinkedList<>());
+        DeviceInfo deviceInfo2 = new DeviceInfo(2, "K2", "K", DEVICE_READY, -1, new LinkedList<>());
         deviceInfoTable.add(deviceInfo2);
-        DeviceInfo deviceInfo3 = new DeviceInfo(3, "K3", "K", DEVICE_READY, new LinkedList<>());
+        DeviceInfo deviceInfo3 = new DeviceInfo(3, "K3", "K", DEVICE_READY, -1, new LinkedList<>());
         deviceInfoTable.add(deviceInfo3);
-        DeviceInfo deviceInfo4 = new DeviceInfo(4, "P1", "P", DEVICE_READY, new LinkedList<>());
+        DeviceInfo deviceInfo4 = new DeviceInfo(4, "P1", "P", DEVICE_READY, -1, new LinkedList<>());
         deviceInfoTable.add(deviceInfo4);
 
     }
