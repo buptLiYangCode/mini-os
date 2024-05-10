@@ -1,7 +1,7 @@
 package bupt.os.component.timer;
 
 import bupt.os.component.interrupt.InterruptRequestLine;
-import bupt.os.component.memory.ly.ProtectedMemory;
+import bupt.os.component.memory.protected_.ProtectedMemory;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 

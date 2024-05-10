@@ -1,7 +1,7 @@
 package bupt.os.service;
 
-import bupt.os.component.filesystem.filesystem_wdh.FileNode;
-import bupt.os.component.memory.ly.FileInfoo;
+import bupt.os.component.filesystem.FileNode;
+import bupt.os.component.memory.protected_.FileInfoo;
 
 import java.util.List;
 

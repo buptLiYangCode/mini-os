@@ -9,4 +9,6 @@ public interface ProcessManageService {
     void executeProcess(String processName);
 
     ProcessQueryAllRespDTO queryAllProcessInfo();
+
+    void switchStrategy(String strategy);
 }

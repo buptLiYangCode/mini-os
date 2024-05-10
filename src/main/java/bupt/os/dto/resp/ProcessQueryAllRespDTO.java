@@ -1,10 +1,11 @@
 package bupt.os.dto.resp;
 
-import bupt.os.component.memory.ly.PCB;
+import bupt.os.component.memory.protected_.PCB;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.HashMap;
 import java.util.List;
 
 @Data
@@ -16,5 +17,5 @@ public class ProcessQueryAllRespDTO {
 
     List<Integer> waitingQueue;
 
-    List<Integer> readyQueue;
+    HashMap<Integer, List<Integer>> readyQueue;
 }

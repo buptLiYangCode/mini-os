@@ -38,30 +38,41 @@
                         <td > PID </td>
                         <td>进程名称</td>
                         <td>进程指令</td>
+                        <td>剩余时间</td>
+                        <td>优先级</td>
                     </tr>
                     <tr>
-                        <th>CPU1 </th>
+                        <th>核1 </th>
                         <td id="pid_txt0">  </td>
                         <td id="processName_txt0"> </td>
                         <td id="currInst_txt0"> </td>
+                        <td id="remainingTime_txt0"> </td>
+                        <td id="priority_txt0"> </td>
                     </tr>
                     <tr>
-                        <th>CPU2 </th>
+                        <th>核2 </th>
                         <td id="pid_txt1">   </td>
                         <td id="processName_txt1"> </td>
                         <td id="currInst_txt1"> </td>
+                        <td id="remainingTime_txt1"> </td>
+                        <td id="priority_txt1"> </td>
+
                     </tr>
                     <tr>
-                        <th>CPU3 </th>
+                        <th>核3 </th>
                         <td id="pid_txt2">   </td>
                         <td id="processName_txt2"> </td>
                         <td id="currInst_txt2"> </td>
+                        <td id="remainingTime_txt2"> </td>
+                        <td id="priority_txt2"> </td>
                     </tr>
                     <tr>
-                        <th>CPU4 </th>
+                        <th>核4 </th>
                         <td id="pid_txt3">   </td>
                         <td id="processName_txt3"> </td>
                         <td id="currInst_txt3"> </td>
+                        <td id="remainingTime_txt3"> </td>
+                        <td id="priority_txt3"> </td>
                     </tr>
                 </table>
             </div>
@@ -70,8 +81,14 @@
                 <div class="queue-container" id="waiting-queue-container"> </div>
             </div>
             <p class="subtitle">Ready      </p>
-            <div class="content_line">
-                <div class="queue-container" id="ready-queue-container"> </div>
+            <div class="content_line">3
+                <div class="queue-container" id="ready-queue-container3"> </div>
+            </div>
+            <div class="content_line">2
+                <div class="queue-container" id="ready-queue-container2"> </div>
+            </div>
+            <div class="content_line">1
+                <div class="queue-container" id="ready-queue-container1"> </div>
             </div>
         </div>
     </div>
@@ -132,7 +149,7 @@
                     <table id="kb1">
                         <thead>
                         <tr>
-                            <th>键盘1 ⌨️</th>
+                            <th>键盘 ⌨️</th>
                         </tr>
                         </thead>
                         <!--                        <tbody  id="kkb1"></tbody>-->
@@ -143,7 +160,7 @@
                 <table id="kb2">
                     <thead>
                     <tr>
-                        <th>键盘2 ⌨️</th>
+                        <th>显示器 🖥️</th>
                     </tr>
                     </thead>
                     <!--                    <tbody>-->

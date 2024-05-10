@@ -1,4 +1,4 @@
-package bupt.os.component.filesystem.filesystem_wdh;
+package bupt.os.component.filesystem;
 
 import java.util.Objects;
 
@@ -152,7 +152,7 @@ public class FileSystem {
         if (!isExist(path)){
             return "No such file or directory";
         }
-        String[] parts = now_path.split("/");
+        String[] parts = path.split("/");
         FileNode currentNode = root;
         for (int i = 1; i < parts.length; i++) {
             for (FileNode child : currentNode.getChildren()) {

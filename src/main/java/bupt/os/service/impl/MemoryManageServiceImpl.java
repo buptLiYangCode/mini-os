@@ -1,7 +1,7 @@
 package bupt.os.service.impl;
 
-import bupt.os.component.memory.lyq.BitMapEntry;
-import bupt.os.component.memory.lyq.MemoryManagementImpl;
+import bupt.os.component.memory.user.BitMapEntry;
+import bupt.os.component.memory.user.MemoryManagementImpl;
 import bupt.os.service.MemoryManageService;
 import org.springframework.stereotype.Service;
 

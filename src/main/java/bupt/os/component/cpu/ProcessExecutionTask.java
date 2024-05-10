@@ -1,15 +1,16 @@
 package bupt.os.component.cpu;
 
-import bupt.os.component.filesystem.filesystem_wdh.FileNode;
-import bupt.os.component.filesystem.filesystem_wdh.FileReader;
-import bupt.os.component.filesystem.filesystem_wdh.FileSystem;
-import bupt.os.component.filesystem.filesystem_wdh.FileWriter;
+import bupt.os.component.filesystem.FileNode;
+import bupt.os.component.filesystem.FileReader;
+import bupt.os.component.filesystem.FileSystem;
+import bupt.os.component.filesystem.FileWriter;
 import bupt.os.component.interrupt.InterruptRequestLine;
-import bupt.os.component.memory.ly.DeviceInfo;
-import bupt.os.component.memory.ly.IoRequest;
-import bupt.os.component.memory.ly.PCB;
-import bupt.os.component.memory.ly.ProtectedMemory;
-import bupt.os.component.memory.lyq.MemoryManagementImpl;
+import bupt.os.component.memory.protected_.DeviceInfo;
+import bupt.os.component.memory.protected_.IoRequest;
+import bupt.os.component.memory.protected_.PCB;
+import bupt.os.component.memory.protected_.ProtectedMemory;
+import bupt.os.component.memory.user.MemoryManagementImpl;
+import bupt.os.component.scheduler.ProcessScheduler;
 import lombok.extern.slf4j.Slf4j;
 
 import java.nio.ByteBuffer;
@@ -21,7 +22,7 @@ import java.util.Queue;
 import static bupt.os.common.constant.InstructionConstant.*;
 import static bupt.os.common.constant.ProcessStateConstant.*;
 import static bupt.os.component.interrupt.InterruptHandler.*;
-import static bupt.os.component.process.scheduler.ProcessScheduler.executeNextProcess;
+import static bupt.os.component.scheduler.ProcessScheduler.executeNextProcess;
 
 @Slf4j
 public class ProcessExecutionTask implements Runnable {
@@ -37,8 +38,8 @@ public class ProcessExecutionTask implements Runnable {
     Queue<PCB> waitingQueue = protectedMemory.getWaitingQueue();
     Queue<PCB> runningQueue = protectedMemory.getRunningQueue();
     Queue<PCB> readyQueue = protectedMemory.getReadyQueue();
-    private static final  HashMap<Long , InterruptRequestLine> irlTable = protectedMemory.getIrlTable();
-    
+    private static final HashMap<Long, InterruptRequestLine> irlTable = protectedMemory.getIrlTable();
+
     // 可执行任务的属性
     private final PCB pcb;
     private final String[] instructions;
@@ -54,19 +55,12 @@ public class ProcessExecutionTask implements Runnable {
     @Override
     public void run() {
         try {
-            InterruptRequestLine irl = irlTable.getOrDefault(Thread.currentThread().getId(), new InterruptRequestLine());
-            irlTable.put(Thread.currentThread().getId(), irl);
+            InterruptRequestLine irl = irlTable.get(Thread.currentThread().getId());
             startUpdate();
             // CPU 收到时钟中断、执行IO指令都会切换进程，0表示未切换，1表示切换后放进就绪队列，2表示切换后放进等待队列
             int isSwitchProcess;
 
             for (int ir = pcb.getIr(); ir < instructions.length; ir = pcb.getIr()) {
-                if (ir == 0) {
-                    // TODO lyq 分配内存
-                    // 2.分配驻留集，返回的是页表在内存中哪个页上
-                    int pageTable = mmu.Allocate(pcb.getPid(), pcb.getSize());
-                    pcb.setRegister(pageTable);
-                }
                 String instruction = instructions[ir];
                 if (instruction.equals(Q)) {
                     executeInstruction(instruction);
@@ -84,7 +78,9 @@ public class ProcessExecutionTask implements Runnable {
                     String peek = irl.peek();
                     if (peek != null) {
                         // 处理硬件中断信号，CPU去执行中断处理程序了。时间片耗尽也会导致进程切换，isSwitchProcess = 1 表示时间片耗尽导致的进程切换
-                        isSwitchProcess = handleHardInterrupt(pcb);
+                        int i = handleHardInterrupt(pcb);
+                        if (i != 0)
+                            isSwitchProcess = i;
                     }
                     // 时间片耗尽导致进程切换
                     if (isSwitchProcess > 0)
@@ -92,9 +88,9 @@ public class ProcessExecutionTask implements Runnable {
                 }
             }
             log.info(pcb.getProcessName() + "出让CPU");
-            System.out.println("运行队列"+protectedMemory.getRunningQueue().stream().map(PCB::getProcessName).toList());
-            System.out.println("就绪队列"+protectedMemory.getReadyQueue().stream().map(PCB::getProcessName).toList());
-            System.out.println("就绪队列"+protectedMemory.getWaitingQueue().stream().map(PCB::getProcessName).toList());
+            System.out.println("运行队列" + protectedMemory.getRunningQueue().stream().map(PCB::getProcessName).toList());
+            System.out.println("就绪队列" + protectedMemory.getReadyQueue().stream().map(PCB::getProcessName).toList());
+            System.out.println("等待队列" + protectedMemory.getWaitingQueue().stream().map(PCB::getProcessName).toList());
             // 调度器调度下一个可执行进程
             executeNextProcess();
         } catch (Exception e) {
@@ -111,8 +107,12 @@ public class ProcessExecutionTask implements Runnable {
     private void startUpdate() {
         // 1
         pcb.setState(RUNNING);
-        pcb.setStartTime(System.currentTimeMillis());
-        pcb.setRemainingTime(2000);
+        if (ProcessScheduler.strategy.equals("RR"))
+            pcb.setRemainingTime(3800L);
+        else if (ProcessScheduler.strategy.equals("MLFQ") && pcb.getRemainingTime() < 0)
+            pcb.setRemainingTime(3800L);
+        else if (ProcessScheduler.strategy.equals("FCFS") || ProcessScheduler.strategy.equals("SJF"))
+            pcb.setRemainingTime(99999999L);
         try {
             // 这里之前检测并发异常，添加了的try-catch结构
             readyQueue.removeIf(p -> p.equals(pcb));
@@ -164,6 +164,7 @@ public class ProcessExecutionTask implements Runnable {
                 case C -> {
                     int computeTime = Integer.parseInt(parts[1]);
                     Thread.sleep(computeTime); // Simulate computation
+                    pcb.setRemainingTime(pcb.getRemainingTime() - computeTime);
                     log.info(pcb.getProcessName() + "：" + instruction + "执行完成");
                 }
                 case D -> {
@@ -181,8 +182,6 @@ public class ProcessExecutionTask implements Runnable {
                         ioRequestQueue.add(new IoRequest(pcb, inputTime, Thread.currentThread().getId()));
                         // 进程切换
                         pcb.setState(WAITING);
-                        pcb.setRemainingTime(-1);
-                        pcb.setStartTime(-1);
                         // 放入等待队列
                         waitingQueue.add(pcb);
                         // 移出运行队列
@@ -204,7 +203,8 @@ public class ProcessExecutionTask implements Runnable {
                         // 进程切换
                         pcb.setState(READY);
                         pcb.setRemainingTime(-1);
-                        pcb.setStartTime(-1);
+                        if (ProcessScheduler.strategy.equals("MLFQ") && pcb.getPriority() > 1)
+                            pcb.setPriority(pcb.getPriority() - 1);
                         // 放入等待队列 TODO
                         readyQueue.add(pcb);
                         // 移出运行队列
@@ -231,7 +231,6 @@ public class ProcessExecutionTask implements Runnable {
                     pcb.setIr(0);
                     pcb.setState(CREATED);
                     pcb.setRemainingTime(-1);
-                    pcb.setStartTime(-1);
                     // TODO lyq 释放内存
                     mmu.Free(pcb.getRegister());
                     pcb.setRegister(-1);

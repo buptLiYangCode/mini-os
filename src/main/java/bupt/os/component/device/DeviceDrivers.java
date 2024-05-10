@@ -1,9 +1,9 @@
 package bupt.os.component.device;
 
 import bupt.os.component.interrupt.InterruptRequestLine;
-import bupt.os.component.memory.ly.DeviceInfo;
-import bupt.os.component.memory.ly.IoRequest;
-import bupt.os.component.memory.ly.ProtectedMemory;
+import bupt.os.component.memory.protected_.DeviceInfo;
+import bupt.os.component.memory.protected_.IoRequest;
+import bupt.os.component.memory.protected_.ProtectedMemory;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -26,7 +26,7 @@ public class DeviceDrivers {
     private final DevicesSimulator devicesSimulator = DevicesSimulator.getInstance();
 
     private final HashMap<Long, InterruptRequestLine> irlTable = protectedMemory.getIrlTable();
-    
+
 
     @Scheduled(fixedRate = 100) // 每隔100ms执行一次
     public void checkAllDeviceQueue() {
@@ -51,6 +51,9 @@ public class DeviceDrivers {
                         // 硬件设备发送IO操作完成 中断信号 到irl
                         InterruptRequestLine irl = irlTable.get(ioRequest.getThreadId());
                         irl.offer("IO_INTERRUPT-" + ioRequest.getPcb().getPid());
+                        System.out.println("IRL+++" + irl.peek());
+
+                        System.out.println(irlTable);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }

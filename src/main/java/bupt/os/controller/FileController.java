@@ -2,8 +2,8 @@ package bupt.os.controller;
 
 import bupt.os.common.result.Result;
 import bupt.os.common.result.Results;
-import bupt.os.component.filesystem.filesystem_wdh.FileNode;
-import bupt.os.component.memory.ly.FileInfoo;
+import bupt.os.component.filesystem.FileNode;
+import bupt.os.component.memory.protected_.FileInfoo;
 import bupt.os.service.FileSystemService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;

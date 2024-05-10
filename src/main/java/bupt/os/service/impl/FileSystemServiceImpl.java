@@ -1,11 +1,13 @@
 package bupt.os.service.impl;
 
 
-import bupt.os.component.filesystem.filesystem_wdh.FileNode;
-import bupt.os.component.filesystem.filesystem_wdh.FileSystem;
-import bupt.os.component.memory.ly.FileInfoo;
-import bupt.os.component.memory.ly.ProtectedMemory;
+import bupt.os.component.filesystem.FileNode;
+import bupt.os.component.filesystem.FileSystem;
+import bupt.os.component.memory.protected_.FileInfoo;
+import bupt.os.component.memory.protected_.ProtectedMemory;
 import bupt.os.service.FileSystemService;
+import bupt.os.service.ProcessManageService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -14,7 +16,10 @@ import java.util.List;
 import java.util.Set;
 
 @Service
+@RequiredArgsConstructor
 public class FileSystemServiceImpl implements FileSystemService {
+
+    private final ProcessManageService processManageService;
 
     private final FileSystem fileSystem = FileSystem.getInstance();
     private final ProtectedMemory protectedMemory = ProtectedMemory.getInstance();
@@ -31,12 +36,19 @@ public class FileSystemServiceImpl implements FileSystemService {
             case "rmfile" -> fileSystem.rmfile(strings[1]);
             case "rmdir" -> fileSystem.rmdir(strings[1]);
             case "nowTree" -> fileSystem.nowTree();
+            case "run" -> run(strings);
             // case "printFileTree" -> fileSystem.getStruct();
             // ...
             default -> "无法识别的指令";
         };
     }
 
+    public String run(String[] strings) {
+        for (int i = 1; i < strings.length; i++) {
+            processManageService.executeProcess(strings[i]);
+        }
+        return "";
+    }
     @Override
     public String printFileTree() {
         return fileSystem.fileTree();

@@ -2,18 +2,21 @@ package bupt.os.runner;
 
 import bupt.os.component.cpu.CPUSimulator;
 import bupt.os.component.device.DevicesSimulator;
-import bupt.os.component.filesystem.filesystem_ly.Disk;
-import bupt.os.component.filesystem.filesystem_wdh.FileSystem;
-import bupt.os.component.memory.ly.DeviceInfo;
-import bupt.os.component.memory.ly.ProtectedMemory;
-import bupt.os.component.memory.lyq.MemoryManagement;
-import bupt.os.component.memory.lyq.MemoryManagementImpl;
+import bupt.os.component.filesystem.FileSystem;
+import bupt.os.component.interrupt.InterruptRequestLine;
+import bupt.os.component.memory.protected_.DeviceInfo;
+import bupt.os.component.memory.protected_.ProtectedMemory;
+import bupt.os.component.memory.user.MemoryManagement;
+import bupt.os.component.memory.user.MemoryManagementImpl;
+import bupt.os.component.scheduler.ProcessScheduler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.concurrent.ExecutorService;
 
 import static bupt.os.common.constant.DeviceStateConstant.DEVICE_READY;
 
@@ -24,15 +27,30 @@ import static bupt.os.common.constant.DeviceStateConstant.DEVICE_READY;
 @RequiredArgsConstructor
 public class MiniOsApplicationRunner implements ApplicationRunner {
     private final CPUSimulator cpuSimulator = CPUSimulator.getInstance();
-    private final Disk disk = Disk.getInstance();
     private final ProtectedMemory protectedMemory = ProtectedMemory.getInstance();
     private final DevicesSimulator devicesSimulator = DevicesSimulator.getInstance();
-    // 文件系统初始化
     private final FileSystem fileSystem = FileSystem.getInstance();
+    // 初始化表
+    private final HashMap<Long, InterruptRequestLine> irlTable = protectedMemory.getIrlTable();
+
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
-
+        ExecutorService cpuSimulatorExecutor = cpuSimulator.getExecutor();
+        for (int i = 0; i < 4; i++) {
+            cpuSimulatorExecutor.submit(() -> {
+                irlTable.put(Thread.currentThread().getId(), new InterruptRequestLine());
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            });
+        }
+        // 让CPU4个核心都运行空线程
+        for (int i = 0; i < 4; i++) {
+            ProcessScheduler.spanWait(cpuSimulatorExecutor);
+        }
         // 内存初始化
         MemoryManagementImpl memoryManagement = new MemoryManagementImpl();
         MemoryManagementImpl.setMode(MemoryManagement.MODE_LFU);

@@ -1,11 +1,9 @@
-package bupt.os.component.memory.ly;
+package bupt.os.component.memory.protected_;
 
-import bupt.os.component.filesystem.filesystem_ly.OpenFileInfo;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.HashMap;
 
 @Data
 @NoArgsConstructor
@@ -25,10 +23,11 @@ public class PCB {
     private int register;
     // 剩余可执行时间，单位ms
     private long remainingTime;
-    // 本次执行开始的时间戳，UTC 时间 1970 年 1 月 1 日 00:00:00 以来经过的毫秒数
-    private long startTime;
+    // 预期运行时间
+    private long expectedTime;
+    // 进程优先级
+    private int priority;
+    // 指令集
     private String[] instructions;
 
-    // 文件描述符表
-    private HashMap<Integer, OpenFileInfo> fileDescriptorTable;
 }

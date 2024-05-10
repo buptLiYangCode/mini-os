@@ -8,10 +8,7 @@ import bupt.os.dto.resp.ProcessQueryAllRespDTO;
 import bupt.os.service.ProcessManageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -43,6 +40,18 @@ public class ProcessController {
         String processName = processExecuteReqDTO.getProcessName();
         log.info(processName + "----------------------------开始执行");
         processManageService.executeProcess(processName);
+        return Results.success();
+    }
+
+    /**
+     * 切换进程调度策略
+     *
+     * @param strategy 进程名
+     * @return ok
+     */
+    @PostMapping("/mini-os/process/strategy")
+    public Result<Void> switchStrategy(@RequestParam String strategy) {
+        processManageService.switchStrategy(strategy);
         return Results.success();
     }
 

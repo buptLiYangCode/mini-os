@@ -1,6 +1,6 @@
 package bupt.os.dto.resp;
 
-import bupt.os.component.memory.lyq.BitMapEntry;
+import bupt.os.component.memory.user.BitMapEntry;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

@@ -1,8 +1,9 @@
 package bupt.os.component.interrupt;
 
-import bupt.os.component.memory.ly.PCB;
-import bupt.os.component.memory.ly.ProtectedMemory;
-import bupt.os.component.memory.lyq.MemoryManagementImpl;
+import bupt.os.component.memory.protected_.PCB;
+import bupt.os.component.memory.protected_.ProtectedMemory;
+import bupt.os.component.memory.user.MemoryManagementImpl;
+import bupt.os.component.scheduler.ProcessScheduler;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.HashMap;
@@ -34,11 +35,12 @@ public class InterruptHandler {
         String interruptRequest;
         while ((interruptRequest = irl.poll()) != null) {
             if (interruptRequest.equals("TIMER_INTERRUPT")) {
-                // 时间片耗尽了，发生进程切换
-                if (System.currentTimeMillis() - pcb.getStartTime() > pcb.getRemainingTime()) {
+                // 时间片耗尽了，发生进程切换,进程优先级-1
+                if (pcb.getRemainingTime() < 0) {
                     pcb.setState(READY);
                     pcb.setRemainingTime(-1);
-                    pcb.setStartTime(-1);
+                    if (ProcessScheduler.strategy.equals("MLFQ") && pcb.getPriority() > 1)
+                        pcb.setPriority(pcb.getPriority() - 1);
                     // 放入就绪队列
                     readyQueue.add(pcb);
                     // 移出运行队列
@@ -54,6 +56,9 @@ public class InterruptHandler {
                 // 放入就绪队列
                 readyQueue.add(pcbInWaitingQueue);
                 log.info("进程" + pcbInWaitingQueue.getProcessName() + "IO操作完成");
+                System.out.println("1运行队列" + protectedMemory.getRunningQueue().stream().map(PCB::getProcessName).toList());
+                System.out.println("就绪队列" + protectedMemory.getReadyQueue().stream().map(PCB::getProcessName).toList());
+                System.out.println("等待队列" + protectedMemory.getWaitingQueue().stream().map(PCB::getProcessName).toList());
             }
         }
         return isSwitchProcess;
@@ -76,6 +81,9 @@ public class InterruptHandler {
                 // 放入就绪队列
                 readyQueue.add(pcbInWaitingQueue);
                 log.info("进程" + pcbInWaitingQueue.getProcessName() + "IO操作完成");
+                System.out.println("2运行队列" + protectedMemory.getRunningQueue().stream().map(PCB::getProcessName).toList());
+                System.out.println("就绪队列" + protectedMemory.getReadyQueue().stream().map(PCB::getProcessName).toList());
+                System.out.println("等待队列" + protectedMemory.getWaitingQueue().stream().map(PCB::getProcessName).toList());
                 count++;
             }
         }
@@ -96,8 +104,6 @@ public class InterruptHandler {
         pcbInWaitingQueue.setIr(pcbInWaitingQueue.getIr() + 1);
 
         pcbInWaitingQueue.setState(READY);
-        pcbInWaitingQueue.setRemainingTime(-1);
-        pcbInWaitingQueue.setStartTime(-1);
         return pcbInWaitingQueue;
     }
 

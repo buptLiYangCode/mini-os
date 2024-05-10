@@ -1,6 +1,6 @@
 package bupt.os.service;
 
-import bupt.os.component.memory.lyq.BitMapEntry;
+import bupt.os.component.memory.user.BitMapEntry;
 
 import java.util.List;
 

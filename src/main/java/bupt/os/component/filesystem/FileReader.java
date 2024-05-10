@@ -1,8 +1,8 @@
-package bupt.os.component.filesystem.filesystem_wdh;
+package bupt.os.component.filesystem;
 
-import bupt.os.component.memory.ly.FileInfoo;
-import bupt.os.component.memory.ly.PCB;
-import bupt.os.component.memory.ly.ProtectedMemory;
+import bupt.os.component.memory.protected_.FileInfoo;
+import bupt.os.component.memory.protected_.PCB;
+import bupt.os.component.memory.protected_.ProtectedMemory;
 
 import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
@@ -32,13 +32,10 @@ public class FileReader {
     }
 
     public boolean readFile(PCB pcb, FileNode fileNode, long readTime) throws InterruptedException {
-        // 计算剩余时间片
-        long remainingTime = 2000L - (System.currentTimeMillis() - pcb.getStartTime());
-
         Semaphore semaphore = semaphoreTable.getOrDefault(fileNode, new Semaphore(3));
         semaphoreTable.put(fileNode, semaphore);
         boolean acquired = false;
-        while (System.currentTimeMillis() - pcb.getStartTime() < remainingTime) {
+        while (pcb.getRemainingTime() > 0) {
             if (semaphore.tryAcquire()) {
                 // 获取许可
                 acquired = true;
@@ -54,12 +51,14 @@ public class FileReader {
                 }
                 // 模拟读取文件
                 Thread.sleep(readTime);
+                pcb.setRemainingTime(pcb.getRemainingTime() - readTime < 0 ? -1 : pcb.getRemainingTime() - readTime);
                 // 释放许可
                 semaphore.release();
                 accessList.remove(pcb.getPid());
                 break;
             }
-            Thread.sleep(100);
+            Thread.sleep(200);
+            pcb.setRemainingTime(pcb.getRemainingTime() - 200);
         }
 
         return acquired;

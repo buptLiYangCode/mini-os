@@ -95,13 +95,13 @@ body, html {
 }
 /* waiting ready队列的小square*/
 .square {
-    width: 40px;
-    height: 35px;
+    width: 25px;
+    height: 20px;
     background-color: rgba(211, 211, 211, 0.55);
     display: inline-block;
     margin: 5px;
     text-align: center;
-    line-height: 35px;
+    line-height: 20px;
     border-radius: 5px;
 }
 

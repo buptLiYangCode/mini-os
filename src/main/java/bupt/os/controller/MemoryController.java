@@ -2,7 +2,7 @@ package bupt.os.controller;
 
 import bupt.os.common.result.Result;
 import bupt.os.common.result.Results;
-import bupt.os.component.memory.lyq.BitMapEntry;
+import bupt.os.component.memory.user.BitMapEntry;
 import bupt.os.dto.resp.MemoryQueryAllRespDTO;
 import bupt.os.service.MemoryManageService;
 import lombok.RequiredArgsConstructor;

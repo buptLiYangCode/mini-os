@@ -1,4 +1,4 @@
-package bupt.os.component.memory.ly;
+package bupt.os.component.memory.protected_;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

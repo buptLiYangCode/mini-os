@@ -1,6 +1,6 @@
 package bupt.os.service.impl;
 
-import bupt.os.component.memory.ly.ProtectedMemory;
+import bupt.os.component.memory.protected_.ProtectedMemory;
 import bupt.os.dto.resp.DeviceQueryAllRespDTO;
 import bupt.os.service.DeviceManageService;
 import org.springframework.stereotype.Service;

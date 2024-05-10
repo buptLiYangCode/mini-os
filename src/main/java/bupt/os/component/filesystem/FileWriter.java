@@ -1,8 +1,8 @@
-package bupt.os.component.filesystem.filesystem_wdh;
+package bupt.os.component.filesystem;
 
-import bupt.os.component.memory.ly.FileInfoo;
-import bupt.os.component.memory.ly.PCB;
-import bupt.os.component.memory.ly.ProtectedMemory;
+import bupt.os.component.memory.protected_.FileInfoo;
+import bupt.os.component.memory.protected_.PCB;
+import bupt.os.component.memory.protected_.ProtectedMemory;
 
 import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
@@ -36,13 +36,13 @@ public class FileWriter {
         Semaphore semaphore = semaphoreTable.getOrDefault(fileNode, new Semaphore(1));
         semaphoreTable.put(fileNode, semaphore);
         boolean acquired = false;
-        while (System.currentTimeMillis() - pcb.getStartTime() < 2000L) {
+        while (pcb.getRemainingTime() > 0) {
             if (semaphore.tryAcquire()) {
                 // 获取许可
                 acquired = true;
 
                 HashMap<FileNode, FileInfoo> fileInfoTable = protectedMemory.getFileInfoTable();
-                FileInfoo fileInfoo = fileInfoTable.getOrDefault(fileNode, new FileInfoo(fileNode.getName(), fileSystem.getPath(), new ConcurrentLinkedQueue(), true));
+                FileInfoo fileInfoo = fileInfoTable.getOrDefault(fileNode, new FileInfoo(fileNode.getName(), fileSystem.getPath(), new ConcurrentLinkedQueue<>(), true));
                 fileInfoTable.put(fileNode, fileInfoo);
                 ConcurrentLinkedQueue<Integer> accessList = fileInfoo.getAccessList();
                 accessList.add(pcb.getPid());
@@ -57,7 +57,8 @@ public class FileWriter {
                 accessList.remove(pcb.getPid());
                 break;
             }
-            Thread.sleep(100);
+            Thread.sleep(200);
+            pcb.setRemainingTime(pcb.getRemainingTime() - 200);
         }
 
         return acquired;
