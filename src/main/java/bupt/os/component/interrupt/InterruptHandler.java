@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.HashMap;
 import java.util.Queue;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static bupt.os.common.constant.ProcessStateConstant.READY;
 
@@ -22,7 +23,7 @@ public class InterruptHandler {
     private static final Queue<PCB> runningQueue = protectedMemory.getRunningQueue();
     private static final Queue<PCB> readyQueue = protectedMemory.getReadyQueue();
     private static final Queue<PCB> waitingQueue = protectedMemory.getWaitingQueue();
-    private static final HashMap<Long, InterruptRequestLine> irlTable = protectedMemory.getIrlTable();
+    private static final ConcurrentHashMap<Long, InterruptRequestLine> irlTable = protectedMemory.getIrlTable();
 
     /**
      * 硬件中断处理程序，如果发生进程切换，需要更新PCB状态，以及几个队列的状态

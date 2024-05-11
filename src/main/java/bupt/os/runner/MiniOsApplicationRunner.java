@@ -14,8 +14,8 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 
 import static bupt.os.common.constant.DeviceStateConstant.DEVICE_READY;
@@ -31,7 +31,7 @@ public class MiniOsApplicationRunner implements ApplicationRunner {
     private final DevicesSimulator devicesSimulator = DevicesSimulator.getInstance();
     private final FileSystem fileSystem = FileSystem.getInstance();
     // 初始化表
-    private final HashMap<Long, InterruptRequestLine> irlTable = protectedMemory.getIrlTable();
+    private final ConcurrentHashMap<Long, InterruptRequestLine> irlTable = protectedMemory.getIrlTable();
 
 
     @Override
@@ -41,7 +41,8 @@ public class MiniOsApplicationRunner implements ApplicationRunner {
             cpuSimulatorExecutor.submit(() -> {
                 irlTable.put(Thread.currentThread().getId(), new InterruptRequestLine());
                 try {
-                    Thread.sleep(100);
+                    Thread.sleep(10);
+                    System.out.println("初始化" + Thread.currentThread().getId());
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }

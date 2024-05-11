@@ -8,8 +8,8 @@ import bupt.os.component.memory.protected_.ProtectedMemory;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.Queue;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 
 import static bupt.os.component.interrupt.InterruptHandler.handleHardInterruptIo;
@@ -23,7 +23,7 @@ public class ProcessScheduler {
     private static final CPUSimulator cpuSimulator = CPUSimulator.getInstance();
 
     private static final Queue<PCB> readyQueue = protectedMemory.getReadyQueue();
-    private static final HashMap<Long, InterruptRequestLine> irlTable = protectedMemory.getIrlTable();
+    private static final ConcurrentHashMap<Long, InterruptRequestLine> irlTable = protectedMemory.getIrlTable();
 
     public static String strategy = "MLFQ";
 
@@ -85,7 +85,6 @@ public class ProcessScheduler {
                     log.info("cpu" + Thread.currentThread().getId() + "正在空转");
                     long threadId = Thread.currentThread().getId();
                     InterruptRequestLine irl = irlTable.get(threadId);
-                    System.out.println(irl.peek());
                     if (irl.peek() != null) {
                         handleHardInterruptIo();
                     }

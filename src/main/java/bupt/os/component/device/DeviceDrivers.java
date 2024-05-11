@@ -8,8 +8,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static bupt.os.common.constant.DeviceStateConstant.DEVICE_READY;
 import static bupt.os.common.constant.DeviceStateConstant.DEVICE_WORKING;
@@ -25,7 +25,7 @@ public class DeviceDrivers {
     private final ProtectedMemory protectedMemory = ProtectedMemory.getInstance();
     private final DevicesSimulator devicesSimulator = DevicesSimulator.getInstance();
 
-    private final HashMap<Long, InterruptRequestLine> irlTable = protectedMemory.getIrlTable();
+    private final ConcurrentHashMap<Long, InterruptRequestLine> irlTable = protectedMemory.getIrlTable();
 
 
     @Scheduled(fixedRate = 100) // 每隔100ms执行一次

@@ -1,8 +1,13 @@
 package bupt.os.component.filesystem;
 
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Semaphore;
 
 public class FileSystem {
+    private static final FileReader fileReader = FileReader.getInstance();
+    private static final FileWriter fileWriter = FileWriter.getInstance();
+
     private FileNode root;
     private FileNode now_node;
     private String now_path;
@@ -231,7 +236,10 @@ public class FileSystem {
             FileNode newNode = new FileNode(parts[parts.length - 1], false, currentNode);
             currentNode.addChild(newNode);
         }
-
+        ConcurrentHashMap<FileNode, Semaphore> semaphoreTable1 = fileReader.getSemaphoreTable();
+        semaphoreTable1.put(getFile(path), new Semaphore(3));
+        ConcurrentHashMap<FileNode, Semaphore> semaphoreTable2 = fileWriter.getSemaphoreTable();
+        semaphoreTable2.put(getFile(path), new Semaphore(1));
         return "";
     }
 

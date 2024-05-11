@@ -6,6 +6,7 @@ import lombok.Data;
 
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 
@@ -25,7 +26,7 @@ public class ProtectedMemory {
     // 文件信息表
     private HashMap<FileNode, FileInfoo> fileInfoTable;
     // irl表
-    private HashMap<Long, InterruptRequestLine> irlTable;
+    private ConcurrentHashMap<Long, InterruptRequestLine> irlTable;
 
     // 运行队列
     private ConcurrentLinkedQueue<PCB> runningQueue;
@@ -40,7 +41,7 @@ public class ProtectedMemory {
         pcbTable = new HashMap<>();
         deviceInfoTable = new LinkedList<>();
         fileInfoTable = new HashMap<>();
-        this.irlTable = new HashMap<>();
+        irlTable = new ConcurrentHashMap<>();
 
         runningQueue = new ConcurrentLinkedQueue<>();
         readyQueue = new ConcurrentLinkedQueue<>();

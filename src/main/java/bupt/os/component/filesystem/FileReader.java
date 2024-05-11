@@ -32,8 +32,7 @@ public class FileReader {
     }
 
     public boolean readFile(PCB pcb, FileNode fileNode, long readTime) throws InterruptedException {
-        Semaphore semaphore = semaphoreTable.getOrDefault(fileNode, new Semaphore(3));
-        semaphoreTable.put(fileNode, semaphore);
+        Semaphore semaphore = semaphoreTable.get(fileNode);
         boolean acquired = false;
         while (pcb.getRemainingTime() > 0) {
             if (semaphore.tryAcquire()) {
@@ -62,5 +61,9 @@ public class FileReader {
         }
 
         return acquired;
+    }
+
+    public ConcurrentHashMap<FileNode, Semaphore> getSemaphoreTable() {
+        return semaphoreTable;
     }
 }

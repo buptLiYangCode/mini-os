@@ -33,8 +33,7 @@ public class FileWriter {
 
     public boolean writeFile(PCB pcb, FileNode fileNode, long writeTime, String data) throws InterruptedException {
 
-        Semaphore semaphore = semaphoreTable.getOrDefault(fileNode, new Semaphore(1));
-        semaphoreTable.put(fileNode, semaphore);
+        Semaphore semaphore = semaphoreTable.get(fileNode);
         boolean acquired = false;
         while (pcb.getRemainingTime() > 0) {
             if (semaphore.tryAcquire()) {
@@ -51,6 +50,7 @@ public class FileWriter {
                 // data写入文件，模拟消耗的时间
                 Thread.sleep(writeTime);
                 fileNode.setContent(fileNode.getContent() + data);
+                pcb.setRemainingTime(pcb.getRemainingTime() - writeTime < 0 ? -1 : pcb.getRemainingTime() - writeTime);
                 // 释放许可
                 semaphore.release();
                 fileInfoo.setShared(true);
@@ -62,6 +62,9 @@ public class FileWriter {
         }
 
         return acquired;
+    }
+    public ConcurrentHashMap<FileNode, Semaphore> getSemaphoreTable() {
+        return semaphoreTable;
     }
 }
 

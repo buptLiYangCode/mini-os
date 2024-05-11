@@ -14,10 +14,10 @@ import bupt.os.component.scheduler.ProcessScheduler;
 import lombok.extern.slf4j.Slf4j;
 
 import java.nio.ByteBuffer;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Optional;
 import java.util.Queue;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static bupt.os.common.constant.InstructionConstant.*;
 import static bupt.os.common.constant.ProcessStateConstant.*;
@@ -38,7 +38,7 @@ public class ProcessExecutionTask implements Runnable {
     Queue<PCB> waitingQueue = protectedMemory.getWaitingQueue();
     Queue<PCB> runningQueue = protectedMemory.getRunningQueue();
     Queue<PCB> readyQueue = protectedMemory.getReadyQueue();
-    private static final HashMap<Long, InterruptRequestLine> irlTable = protectedMemory.getIrlTable();
+    private static final ConcurrentHashMap<Long, InterruptRequestLine> irlTable = protectedMemory.getIrlTable();
 
     // 可执行任务的属性
     private final PCB pcb;
@@ -220,11 +220,20 @@ public class ProcessExecutionTask implements Runnable {
                     FileNode fileNode = fileSystem.getFile(filePath);
                     boolean acquired = fileWriter.writeFile(pcb, fileNode, writeTime, data);
                     if (acquired)
-                        log.info(pcb.getProcessName() + "：" + instruction + "执行完成，成功将数据写入该文件");
+                        log.info(pcb.getProcessName() + "：" + instruction + "执行完成，成功读取该文件");
                     else {
                         // 阻塞到时间片耗尽，仍然不能访问资源，isSwitchProcess置为2，表示进程切换，下一次仍会执行获取文件资源的指令
+                        // 进程切换
+                        pcb.setState(READY);
+                        pcb.setRemainingTime(-1);
+                        if (ProcessScheduler.strategy.equals("MLFQ") && pcb.getPriority() > 1)
+                            pcb.setPriority(pcb.getPriority() - 1);
+                        // 放入等待队列 TODO
+                        readyQueue.add(pcb);
+                        // 移出运行队列
+                        runningQueue.remove(pcb);
                         isSwitchProcess = 2;
-                        log.info(pcb.getProcessName() + "：" + instruction + "执行失败，有进程正在进行写入");
+                        log.info(pcb.getProcessName() + "：" + instruction + "执行失败，正在读取该文件的进程数达到最大值");
                     }
                 }
                 case Q -> {
