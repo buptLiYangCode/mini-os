@@ -51,9 +51,6 @@ public class DeviceDrivers {
                         // 硬件设备发送IO操作完成 中断信号 到irl
                         InterruptRequestLine irl = irlTable.get(ioRequest.getThreadId());
                         irl.offer("IO_INTERRUPT-" + ioRequest.getPcb().getPid());
-                        System.out.println("IRL+++" + irl.peek());
-
-                        System.out.println(irlTable);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
