@@ -87,7 +87,7 @@ public class ProcessScheduler {
         cpuSimulatorExecutor.submit(() -> {
             try {
                 while (true) {
-                    Thread.sleep(500);
+                    Thread.sleep(100);
                     log.info("cpu" + Thread.currentThread().getId() + "正在空转");
                     long threadId = Thread.currentThread().getId();
                     InterruptRequestLine irl = irlTable.get(threadId);

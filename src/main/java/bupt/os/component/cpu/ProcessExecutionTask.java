@@ -76,7 +76,7 @@ public class ProcessExecutionTask implements Runnable {
                         pcb.setIr(pcb.getIr() + 1);
                     // CPU每执行一条指令，都需要去检查 irl 是否有中断信号
                     String peek = irl.peek();
-                    if (peek != null) {
+                    if (peek != null && isSwitchProcess != 2) {
                         // 处理硬件中断信号，CPU去执行中断处理程序了。时间片耗尽也会导致进程切换，isSwitchProcess = 1 表示时间片耗尽导致的进程切换
                         int i = handleHardInterrupt(pcb);
                         if (i != 0)
