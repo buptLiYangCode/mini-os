@@ -52,6 +52,10 @@ public class InterruptHandler {
             } else {
                 // IO操作完成中断，ir + 1
                 PCB pcbInWaitingQueue = getPcbInWaitingQueue(interruptRequest);
+                log.info("进程" + pcbInWaitingQueue.getProcessName() + "IO操作完成");
+                System.out.println("1运行队列" + protectedMemory.getRunningQueue().stream().map(PCB::getProcessName).toList());
+                System.out.println("就绪队列" + protectedMemory.getReadyQueue().stream().map(PCB::getProcessName).toList());
+                System.out.println("等待队列" + protectedMemory.getWaitingQueue().stream().map(PCB::getProcessName).toList());
                 // 移出等待队列
                 waitingQueue.remove(pcbInWaitingQueue);
                 // 放入就绪队列
