@@ -2,13 +2,12 @@ const url_file_tree = 'http://localhost:8080/mini-os/file-system/file-tree';
 
 const requestOptions = {
     method: 'GET',
-    // headers: myHeaders,
     redirect: 'follow'
 };
 
 // 发送请求并处理返回的数据
 function fetchData() {
-// fetch不能加第二个参数，requestOptions，加上就发不出去请求
+    // fetch不能加第二个参数，requestOptions，加上就发不出去请求,兼容后端处理逻辑
     // 使用 fetch 函数发送一个 GET 请求到指定的 url。
     fetch(url_file_tree)
         // 使用 then 方法处理服务器返回的响应对象。

@@ -12,18 +12,11 @@ function fetchData() {
 
             if (last_deviceInfoList !== deviceInfoList) {
                 // 检查所有ioRequestQueue是否都为空
-                // const allQueuesEmpty = deviceInfoList.every(deviceInfo => deviceInfo.ioRequestQueue.length === 0);
-                // if (!allQueuesEmpty) {
                 var i = 0;
                 // 遍历设备信息列表，创建表格
                 deviceInfoList.forEach(deviceInfo => {
-                    // 创建标题
-                    // const caption = document.createElement('caption');
-                    // caption.textContent = `Device State: ${deviceInfo.deviceState}`;
-                    // table.appendChild(caption);
                     // 创建表格内容
                     const tbody = document.createElement('tbody');
-                    
                     // 各设备状态行
                     const deviceState = deviceInfo.deviceState;
                     const row = document.createElement('tr');
@@ -39,14 +32,6 @@ function fetchData() {
                     // 各设备队列详情
                     const ioRequestQueue = deviceInfo.ioRequestQueue;
                     if (ioRequestQueue.length > 0) {
-                        // 创建表头
-                        // const thead = document.createElement('thead');
-                        // const headerRow = document.createElement('tr');
-                        // const headerCell = document.createElement('th');
-                        // headerCell.textContent = 'Request';
-                        // headerRow.appendChild(headerCell);
-                        // thead.appendChild(headerRow);
-                        // table.appendChild(thead);
                         ioRequestQueue.forEach(request => {
                             // 注意本组给的格式，李洋给了整个PCB
                             const processName = request.pcb.pid;
@@ -55,7 +40,6 @@ function fetchData() {
                             cell.textContent = processName; // 请求格式为字符串
                             row.appendChild(cell);
                             tbody.appendChild(row);
-                            
                         });
                         if (ioRequestQueue.length < 5) {
                             for (let j = 0; j < 5 - ioRequestQueue.length; j++) {
@@ -77,18 +61,9 @@ function fetchData() {
                         document.getElementById('kb2').appendChild(tbody);
                     } else if (i === 2) {
                         document.getElementById('printer').appendChild(tbody);
-                    // } else if (i === 3) {
-                    //     document.getElementById('null').appendChild(tbody);
                     }
                     i++;
                 });
-
-                // } else {
-                //         // 将表格添加到表头之后
-                //         document.getElementById('kb1').appendChild(appendEmptyQueue());
-                //         document.getElementById('kb2').appendChild(appendEmptyQueue());
-                //         document.getElementById('printer').appendChild(appendEmptyQueue());
-                //     }
                 last_deviceInfoList = deviceInfoList;
             }
         })
@@ -113,16 +88,9 @@ function clearTbody() {
     if (tbody_printer) {
         tbody_printer.remove(); // 删除tbody元素
     }
-
-    // const kb1_body = document.getElementById('kkb1');
-    // if (kb1_body !== null) {
-    //     kb1_body.innerHTML = '';
-    // }
 }
 
 function appendEmptyQueue(tbody) {
-    // 创建表格内容
-    // const tbody = document.createElement('tbody');
     // 显示队列为空的提示信息
     const emptyRow = document.createElement('tr');
     const emptyCell = document.createElement('td');
@@ -137,5 +105,4 @@ function appendEmptyQueue(tbody) {
         row.appendChild(cell);
         tbody.appendChild(row);
     }
-    // return tbody;
 }

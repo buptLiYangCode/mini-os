@@ -19,23 +19,13 @@
         <div class="rectangle">
             <div>
                 <span class="block-title" style="display: inline-flex;margin-right: 30px">进程管理</span>
-                <span style="display: inline-flex;">
-                    <form action="">
-                    <select name="cars" class="selector">
-                        <option value="volvo">Volvo</option>
-                        <option value="saab">Saab</option>
-                        <option value="fiat">Fiat</option>
-                        <option value="audi">Audi</option>
-                    </select>
-                </form>
-                </span>
             </div>
             <p class="subtitle">Running</p>
             <div class="running_process_background">
                 <table id="myTable" class="running_process_table">
                     <tr>
                         <th> </th>
-                        <td > PID </td>
+                        <td> PID </td>
                         <td>进程名称</td>
                         <td>进程指令</td>
                         <td>剩余时间</td>
@@ -96,36 +86,16 @@
         <div class="rectangle">
             <div>
                 <span class="block-title" style="display: inline-flex;margin-right: 30px">内存管理</span>
-                <span style="display: inline-flex;">
-                    <form action="">
-                    <select name="cars" class="selector">
-                        <option value="volvo">Volvo</option>
-                        <option value="saab">Saab</option>
-                        <option value="fiat">Fiat</option>
-                        <option value="audi">Audi</option>
-                    </select>
-                </form>
-                </span>
             </div>
             <div id="mem_matrix"></div>
-            <!--            <div class="grid-container" id="grid-container">-->
-            <!--                &lt;!&ndash; 动态生成小正方形 &ndash;&gt;-->
-            <!--            </div>-->
-            <!--            &lt;!&ndash; 气泡提示框 &ndash;&gt;-->
-            <!--            <div class="tooltip" id="tooltip"></div>-->
         </div>
     </div>
     <div class="column">
         <div class="rectangle">
             <p class="block-title">文件系统</p>
             <div>
-                <div class="column" id="fs-tree" style="border: 2px slategray ;border-radius: 10px;white-space: pre-wrap;">
-                    ProcessManager<br>
-                    ├── Algorithm.java<br>
-                    ├── Priority.java<br>
-                    ├── Process.java<br>
-                    ├── ProcessManager.java<br>
-                    └── Scheduler.java
+                <div class="column" id="fs-tree" style="border-radius: 10px;white-space: pre-wrap;">
+        ├/
                 </div>
             </div>
         </div>
@@ -134,14 +104,14 @@
 <!--第二行-->
 <div class="row2">
     <!--cmd窗口-->
-    <div class="column">
+    <div class="column2">
         <div class="rectangle" style="background-color: rgba(100,100,100,0.8)">
             <div id="cmd-window"></div>
             <input type="text" id="cmd-input" autofocus>
         </div>
     </div>
     <!--设备管理模块-->
-    <div class="column">
+    <div class="column2">
         <div class="rectangle" style="display: flex;flex-wrap: wrap; /* 允许换行 */">
             <p class="block-title" style="flex-basis: 100%; /* 独占一行 */">设备管理</p>
             <div class="table-wrapper">
@@ -152,7 +122,6 @@
                             <th>键盘 ⌨️</th>
                         </tr>
                         </thead>
-                        <!--                        <tbody  id="kkb1"></tbody>-->
                     </table>
                 </div>
             </div>
@@ -163,12 +132,6 @@
                         <th>显示器 🖥️</th>
                     </tr>
                     </thead>
-                    <!--                    <tbody>-->
-                    <!--                    <tr></tr>-->
-                    <!--                    <tr></tr>-->
-                    <!--                    <tr></tr>-->
-                    <!--                    <tr></tr>-->
-                    <!--                    </tbody>-->
                 </table>
             </div>
             <div class="table-wrapper">
