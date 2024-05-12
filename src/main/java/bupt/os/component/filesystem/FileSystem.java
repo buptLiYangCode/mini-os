@@ -247,16 +247,16 @@ public class FileSystem {
     public String rmdir(String path){
         if(isExist(path)){
             if(path.charAt(0) != '/'){
-                if(Objects.equals(now_path, "/")){
+                if(now_path == "/"){
                     path = now_path + path;
                 }
                 else{
                     path = now_path + "/" + path;
                 }
             }
-            String[] parts = now_path.split("/");
+            String[] parts = path.split("/");
             FileNode currentNode = root;
-            for (int i = 1; i < parts.length; i++) {
+            for (int i = 0; i < parts.length; i++) {
                 for (FileNode child : currentNode.getChildren()) {
                     if (child.getName().equals(parts[i])) {
                         currentNode = child;
@@ -264,7 +264,16 @@ public class FileSystem {
                     }
                 }
             }
-            currentNode = null;
+            if(!currentNode.isDirectory())
+                return "Is a file";
+
+            FileNode fatherNode = currentNode.getFather();
+            for (FileNode child : fatherNode.getChildren()) {
+                if (child == currentNode) {
+                    fatherNode.deleteChild(child);
+                    break;
+                }
+            }
         }
         return "";
     }
@@ -276,7 +285,7 @@ public class FileSystem {
         }
         if(isExist(path)){
             if(path.charAt(0) != '/'){
-                if(Objects.equals(now_path, "/")){
+                if(now_path == "/"){
                     path = now_path + path;
                 }
                 else{
@@ -285,14 +294,16 @@ public class FileSystem {
             }
             String[] parts = path.split("/");
             FileNode currentNode = root;
-            for (String part : parts) {
+            for (int i = 0; i < parts.length; i++) {
                 for (FileNode child : currentNode.getChildren()) {
-                    if (child.getName().equals(part)) {
+                    if (child.getName().equals(parts[i])) {
                         currentNode = child;
                         break;
                     }
                 }
             }
+            if(currentNode.isDirectory())
+                return "Is a directory";
             FileNode fatherNode = currentNode.getFather();
             for (FileNode child : fatherNode.getChildren()) {
                 if (child == currentNode) {
