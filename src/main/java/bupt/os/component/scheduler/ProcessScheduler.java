@@ -43,16 +43,22 @@ public class ProcessScheduler {
         return pcb;
     }
 
-    private static PCB mlfq() {
-        return readyQueue.stream()
+    private synchronized static PCB mlfq() {
+        PCB pcb = readyQueue.stream()
                 .max(Comparator.comparing(PCB::getPriority))
                 .orElse(null);
+        if (pcb!= null)
+            readyQueue.remove(pcb);
+        return pcb;
     }
 
-    private static PCB sjf() {
-        return readyQueue.stream()
+    private synchronized static PCB sjf() {
+        PCB pcb = readyQueue.stream()
                 .min(Comparator.comparing(PCB::getExpectedTime))
                 .orElse(null);
+        if (pcb!=null)
+            readyQueue.remove(pcb);
+        return pcb;
     }
 
     private static PCB fcfs() {
