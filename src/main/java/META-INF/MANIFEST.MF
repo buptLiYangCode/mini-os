@@ -1,0 +1,23 @@
+Manifest-Version: 1.0
+Main-Class: bupt.os.MiniOsApplication
+Class-Path: spring-boot-starter-logging-3.3.0-20240503.195719-428.jar sp
+ ring-boot-starter-amqp-3.3.0-20240503.195719-428.jar jackson-datatype-j
+ sr310-2.17.0.jar spring-messaging-6.1.6.jar log4j-to-slf4j-2.23.1.jar s
+ pring-context-6.1.6.jar spring-retry-2.0.5.jar micrometer-commons-1.13.
+ 0-RC1.jar jul-to-slf4j-2.0.13.jar spring-boot-starter-3.3.0-20240503.19
+ 5719-428.jar spring-core-6.1.6.jar jakarta.annotation-api-2.1.1.jar lom
+ bok-1.18.32.jar byte-buddy-1.14.13.jar spring-jcl-6.1.6.jar spring-boot
+ -starter-web-3.3.0-20240503.195719-428.jar tomcat-embed-core-10.1.20.ja
+ r jackson-module-parameter-names-2.17.0.jar spring-aop-6.1.6.jar slf4j-
+ api-2.0.13.jar spring-beans-6.1.6.jar log4j-api-2.23.1.jar gson-2.8.5.j
+ ar spring-boot-starter-tomcat-3.3.0-20240503.195719-428.jar logback-cor
+ e-1.5.6.jar spring-webmvc-6.1.6.jar tomcat-embed-el-10.1.20.jar spring-
+ expression-6.1.6.jar jackson-annotations-2.17.0.jar spring-boot-starter
+ -json-3.3.0-20240503.195719-428.jar spring-tx-6.1.6.jar spring-boot-3.3
+ .0-20240503.195719-428.jar spring-rabbit-3.1.4.jar spring-amqp-3.1.4.ja
+ r jackson-core-2.17.0.jar micrometer-observation-1.13.0-RC1.jar spring-
+ boot-autoconfigure-3.3.0-20240503.195719-428.jar amqp-client-5.21.0.jar
+  logback-classic-1.5.6.jar snakeyaml-2.2.jar jackson-databind-2.17.0.ja
+ r tomcat-embed-websocket-10.1.20.jar jackson-datatype-jdk8-2.17.0.jar s
+ pring-web-6.1.6.jar
+
